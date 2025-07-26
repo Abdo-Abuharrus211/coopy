@@ -6,6 +6,14 @@ use std::path::Path;
 use std::string::String;
 use std::{fs, io};
 
+#[derive(Debug, Deserialize)]
+struct Frontmatter {
+    date: Option<String>,
+    publish: Option<bool>,
+    draft: Option<bool>,
+    tags: Option<Vec<String>>,
+}
+
 fn main() {
     // TODO: Account for these...
     let folders = ["Blog", "Knowledge Base", "Self Learning"];
@@ -41,16 +49,10 @@ fn traverse_folder(dir: &Path) -> io::Result<Vec<String>> {
             let current_entry = entry?;
             let path = current_entry.path();
 
-            // println!("{}", path.to_string_lossy());
             if path.is_dir() {
                 let sub_dirs = traverse_folder(&path)?;
                 tar_files.extend(sub_dirs);
             } else if path.is_file() && check_file(&path) {
-                // Unreachable...
-                println!(
-                    "the paths's file called: {}",
-                    path.file_name().unwrap().to_string_lossy()
-                );
                 let path_name = String::from(path.to_string_lossy());
                 println!("the file's called: {path_name}");
                 tar_files.push(String::from(path.to_string_lossy()));
@@ -62,33 +64,33 @@ fn traverse_folder(dir: &Path) -> io::Result<Vec<String>> {
 }
 
 fn check_file(file: &Path) -> bool {
-    #[derive(Debug, Deserialize)]
-    struct Frontmatter {
-        date: Option<String>,
-        publish: Option<bool>,
-        draft: Option<bool>,
-        tags: Option<Vec<String>>,
+    let frontmatter = parse_obsd_frontmatter(&file).unwrap();
+    match frontmatter.publish {
+        None => false,
+        _ => frontmatter.publish.unwrap(),
     }
+}
 
+fn parse_obsd_frontmatter(file: &Path) -> Option<Frontmatter> {
     let md_content = match fs::read_to_string(file) {
         Ok(content) => content,
-        Err(_) => return false,
+        Err(_) => return None,
     };
 
+    // Check if not YAML frontmatter
     if let Some(line) = md_content.lines().next() {
         if line.trim() != "---" {
-            return false;
+            return None;
         }
     }
     let mut matter = String::new();
     let mut first_line = true;
     for line in &mut md_content.lines() {
-        if line.trim() == "---" && !first_line {
-            break;
-        }
         if first_line {
             first_line = false;
             continue;
+        } else if line.trim() == "---" {
+            break;
         }
         matter.push_str(line);
         matter.push_str("\n");
@@ -96,11 +98,7 @@ fn check_file(file: &Path) -> bool {
 
     let frontmatter: Frontmatter = match serde_yaml::from_str(&matter) {
         Ok(fm) => fm,
-        Err(_) => return false,
+        Err(_) => return None,
     };
-    if frontmatter.publish != None {
-        frontmatter.publish.unwrap()
-    } else {
-        false
-    }
+    Some(frontmatter)
 }
