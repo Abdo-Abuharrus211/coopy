@@ -12,8 +12,16 @@ struct Frontmatter {
     // draft: Option<bool>,
     // tags: Option<Vec<String>>,
 }
-const FOLDERS: [&str; 4] = ["Blog", "Knowledge Base", "Self Learning", "Tech Resources"];
-const FORBIDEN: [&str; 5] = [
+const FOLDERS: [&str; 7] = [
+    "Blog",
+    "Knowledge Base",
+    "Resources",
+    "Self Learning",
+    "Ramblings",
+    "Tech Resources",
+    "Clippings",
+];
+const FORBIDDEN: [&str; 5] = [
     "Personal Stuff",
     "Politics and History",
     "Finances",
@@ -24,56 +32,66 @@ const FORBIDEN: [&str; 5] = [
 // const TAGS: [&str; 1] = ["publish"];
 
 fn main() -> Result<(), io::Error> {
-    let mut source = String::new();
-    let mut target = String::new();
+    let mut source = String::from("/home/dev/Documents/ObsidianVaults/MyObsidian");
+    let mut target = String::from("/home/dev/Documents/ObsidianVaults/Garden/content");
 
-    println!("Obsidian vault's (source) path.");
-    io::stdin()
-        .read_line(&mut source)
-        .expect("Error reading source path!");
-    println!("Target path: ");
-    io::stdin()
-        .read_line(&mut target)
-        .expect("Error reading target path!");
+    // If you need some user input...
+    // let mut source = String::new();
+    // let mut target = String::new();
+    // println!("Obsidian vault's (source) path.");
+    // io::stdin()
+    //     .read_line(&mut source)
+    //     .expect("Error reading source path!");
+    // println!("Target path: ");
+    // io::stdin()
+    //     .read_line(&mut target)
+    //     .expect("Error reading target path!");
+
     let form_src = source.trim();
     let form_target = target.trim();
-    let targeted_files = traverse_folder(Path::new(form_src))?;
 
+    let targeted_files = traverse_folder(Path::new(form_src), "")?;
     println!("Copying {} files...", targeted_files.len());
     for file in targeted_files {
         let from = form_src.to_string() + "/" + &file;
         let to = form_target.to_string() + "/" + &file;
         println!("{to}");
+        // Ensure the parent directory exists
+        if let Some(parent) = Path::new(&to).parent() {
+            fs::create_dir_all(parent)?;
+        }
         let _copied = fs::copy(from, to).expect("Error copying files");
     }
     println!("Sync complete");
     Ok(())
 }
 
-fn traverse_folder(dir: &Path) -> io::Result<Vec<String>> {
+fn traverse_folder(dir: &Path, relative_path: &str) -> io::Result<Vec<String>> {
     let mut tar_files: Vec<String> = Vec::new();
     if dir.is_dir() {
         for entry in fs::read_dir(dir)? {
             let current_entry = entry?;
             let path = current_entry.path();
+            let file_name = path.file_name().unwrap().to_string_lossy();
+
+            let new_relative = if relative_path.is_empty() {
+                file_name.to_string()
+            } else {
+                format!("{}/{}", relative_path, file_name)
+            };
 
             if path.is_dir() {
-                let folder_name = path.file_name().unwrap().to_string_lossy();
-                if FOLDERS.contains(&folder_name.as_ref())
-                    && !FORBIDEN.contains(&folder_name.as_ref())
+                if FOLDERS.contains(&file_name.as_ref()) || !FORBIDDEN.contains(&file_name.as_ref())
                 {
-                    println!("Going into sub folder: {}", folder_name);
-                    let sub_dirs = traverse_folder(&path)?;
+                    let sub_dirs = traverse_folder(&path, &new_relative)?;
                     tar_files.extend(sub_dirs);
                 }
             } else if path.is_file() && check_file(&path) {
-                let file_name = String::from(path.file_name().unwrap().to_string_lossy());
-                println!("Adding file {}", file_name);
-                tar_files.push(file_name);
+                println!("Adding file {}", new_relative);
+                tar_files.push(new_relative);
             }
         }
     }
-    println!("Finished traversal!");
     Ok(tar_files)
 }
 
