@@ -14,32 +14,36 @@ struct Frontmatter {
     tags: Option<Vec<String>>,
 }
 
-fn main() {
+fn main() -> Result<(()), io::Error> {
     // TODO: Account for these...
     let folders = ["Blog", "Knowledge Base", "Self Learning"];
     // This frontmatter tag to be checked if it's true or false (turn into Enum?)
     let tags = ["publish"];
 
-    // let mut source = String::new();
-    // let mut target = String::new();
-    let source = String::from("/home/dev/Documents/Rust/source");
-    let target = String::from("/home/dev/Documents/Rust/dest");
-    // Map to store the name of the file and its path (is an ugly array of paths enough?)
-    let mut files: HashMap<String, String> = HashMap::new();
+    let mut source = String::new();
+    let mut target = String::new();
+    // let source = String::from("/home/dev/Documents/Rust/source");
+    // let target = String::from("/home/dev/Documents/Rust/dest");
 
-    // TODO: when done testing, add the I/O back.
-    // println!("Please provide your vault's (source) path.");
-    // io::stdin()
-    //     .read_line(&mut source)
-    //     .expect("Error reading source path!");
-    // println!("Target path: ");
-    // io::stdin()
-    //     .read_line(&mut target)
-    //     .expect("Error reading target path!");
+    println!("Obsidian vault's (source) path.");
+    io::stdin()
+        .read_line(&mut source)
+        .expect("Error reading source path!");
+    println!("Target path: ");
+    io::stdin()
+        .read_line(&mut target)
+        .expect("Error reading target path!");
     let form_src = source.trim();
     let form_target = target.trim();
-    let targeted_files = traverse_folder(Path::new(form_src)).unwrap();
-    println!("{}", targeted_files.len());
+    let targeted_files = traverse_folder(Path::new(form_src))?;
+    println!("Copying {} files...", targeted_files.len());
+    for file in targeted_files {
+        let from = form_src.to_string() + "/" + &file;
+        let to = form_target.to_string() + "/" + &file;
+        let _copied = fs::copy(from, to).expect("Error copying files");
+    }
+    println!("Sync complete");
+    Ok(())
 }
 
 fn traverse_folder(dir: &Path) -> io::Result<Vec<String>> {
@@ -53,9 +57,8 @@ fn traverse_folder(dir: &Path) -> io::Result<Vec<String>> {
                 let sub_dirs = traverse_folder(&path)?;
                 tar_files.extend(sub_dirs);
             } else if path.is_file() && check_file(&path) {
-                let path_name = String::from(path.to_string_lossy());
-                println!("the file's called: {path_name}");
-                tar_files.push(String::from(path.to_string_lossy()));
+                let file_name = String::from(path.file_name().unwrap().to_string_lossy());
+                tar_files.push(file_name);
             }
         }
     }
