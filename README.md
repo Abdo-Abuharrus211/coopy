@@ -7,4 +7,7 @@ Building a tool to sync my blog content with my Obsidian vault. Selectively choo
  - [X] Traverse all folders and their sub-folders.
  - [X] parse files for frontmatter.
  - [X] Check if ready for publishing
- - [ ] Copy the files to the destination directory
+ - [X] Copy the files to the destination directory
+ - [ ] Only copy files in specific folders
+ - [ ] Only copy files not published? // Might miss updated notes...
+ - [ ] Feedback to user
