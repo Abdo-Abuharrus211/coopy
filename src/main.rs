@@ -70,18 +70,14 @@ fn traverse_folder(dir: &Path, relative_path: &str) -> io::Result<Vec<String>> {
     let mut tar_files: Vec<String> = Vec::new();
     if dir.is_dir() {
         for entry in fs::read_dir(dir)? {
+            // TODO: is this idiomatic? Or should I do something else like daisy chaining?
             let current_entry = entry?;
             let path = current_entry.path();
-            let file_name = path.file_name().unwrap().to_string_lossy();
-
-            let new_relative = if relative_path.is_empty() {
-                file_name.to_string()
-            } else {
-                format!("{}/{}", relative_path, file_name)
-            };
+            let entry_name = path.file_name().unwrap().to_string_lossy();
+            let new_rel_path = build_rel_path(Path::new(&entry_name.to_string()), relative_path);
 
             if path.is_dir() {
-                if FOLDERS.contains(&file_name.as_ref()) || !FORBIDDEN.contains(&file_name.as_ref())
+                if FOLDERS.contains(&entry_name.as_ref()) || !FORBIDDEN.contains(&entry_name.as_ref())
                 {
                     let sub_dirs = traverse_folder(&path, &new_relative)?;
                     tar_files.extend(sub_dirs);
