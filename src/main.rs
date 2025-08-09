@@ -4,6 +4,7 @@ use serde::Deserialize;
 use std::path::Path;
 use std::string::String;
 use std::{fs, io};
+use std::process::exit;
 
 #[derive(Debug, Deserialize)]
 struct Frontmatter {
@@ -42,12 +43,40 @@ const FORBIDDEN: [&str; 5] = [
     "Self Care",
     "Tasks",
 ];
+
+const CONFIG_FILE: &str = "config.toml";
+
 // This frontmatter tag to be checked if it's true or false (turn into Enum?)
 // const TAGS: [&str; 1] = ["publish"];
 
 fn main() -> Result<(), io::Error> {
     let source = String::from("/home/dev/Documents/ObsidianVaults/MyObsidian");
     let target = String::from("/home/dev/Documents/ObsidianVaults/Garden/content");
+
+    //TODO: implement the config I/O
+    let conf_contents = match fs::read_to_string(CONFIG_FILE) {
+        Ok(c) => c,
+        Err(_) => {
+            eprintln!("Error reading config file: {}", CONFIG_FILE);
+            exit(1);
+        }
+    };
+
+    // The data gets serialized into a Config Struct including the UserConf struct for user settings.
+    let settings: Config = match toml::from_str(&conf_contents){
+        Ok(s) => s,
+        Err(e) => {
+            eprintln!("Error parsing settings from: {}", e);
+            exit(1);
+        }
+    };
+
+
+    /*
+    TODO
+        - If settings loaded -> parse, extract, serialize into struct
+        - else, prompt the user for source and target
+     */
 
     // If you need some user input...
     // let mut source = String::new();
