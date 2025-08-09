@@ -32,8 +32,8 @@ const FORBIDDEN: [&str; 5] = [
 // const TAGS: [&str; 1] = ["publish"];
 
 fn main() -> Result<(), io::Error> {
-    let mut source = String::from("/home/dev/Documents/ObsidianVaults/MyObsidian");
-    let mut target = String::from("/home/dev/Documents/ObsidianVaults/Garden/content");
+    let source = String::from("/home/dev/Documents/ObsidianVaults/MyObsidian");
+    let target = String::from("/home/dev/Documents/ObsidianVaults/Garden/content");
 
     // If you need some user input...
     // let mut source = String::new();
@@ -60,7 +60,13 @@ fn main() -> Result<(), io::Error> {
         if let Some(parent) = Path::new(&to).parent() {
             fs::create_dir_all(parent)?;
         }
-        let _copied = fs::copy(from, to).expect("Error copying files");
+        let _copied = match fs::copy(&from, to) {
+            Ok(r) => r,
+            Err(e) => {
+                println!("Error copying the file {}: {}", &from, e);
+                continue;
+            }
+        };
     }
     println!("Sync complete");
     Ok(())
