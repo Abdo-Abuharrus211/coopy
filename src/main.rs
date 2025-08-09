@@ -12,6 +12,20 @@ struct Frontmatter {
     // draft: Option<bool>,
     // tags: Option<Vec<String>>,
 }
+
+
+#[derive(Deserialize)]
+struct Config {
+    user_conf: UserConf,
+}
+
+#[derive(Deserialize)]
+struct UserConf {
+    source: String,
+    target: String,
+}
+
+
 const FOLDERS: [&str; 7] = [
     "Blog",
     "Knowledge Base",
