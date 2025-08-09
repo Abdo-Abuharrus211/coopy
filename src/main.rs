@@ -77,14 +77,15 @@ fn traverse_folder(dir: &Path, relative_path: &str) -> io::Result<Vec<String>> {
             let new_rel_path = build_rel_path(Path::new(&entry_name.to_string()), relative_path);
 
             if path.is_dir() {
-                if FOLDERS.contains(&entry_name.as_ref()) || !FORBIDDEN.contains(&entry_name.as_ref())
+                if FOLDERS.contains(&entry_name.as_ref())
+                    || !FORBIDDEN.contains(&entry_name.as_ref())
                 {
-                    let sub_dirs = traverse_folder(&path, &new_relative)?;
+                    let sub_dirs = traverse_folder(&path, &new_rel_path)?;
                     tar_files.extend(sub_dirs);
                 }
             } else if path.is_file() && check_file(&path) {
-                println!("Adding file {}", new_relative);
-                tar_files.push(new_relative);
+                println!("Adding file {}", new_rel_path);
+                tar_files.push(new_rel_path);
             }
         }
     } else if dir.is_file() && check_file(&dir) {
