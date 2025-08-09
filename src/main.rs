@@ -87,8 +87,18 @@ fn traverse_folder(dir: &Path, relative_path: &str) -> io::Result<Vec<String>> {
                 tar_files.push(new_relative);
             }
         }
+    } else if dir.is_file() && check_file(&dir) {
+        tar_files.push(build_rel_path(dir, relative_path));
     }
     Ok(tar_files)
+}
+
+fn build_rel_path(file_name: &Path, rel_path: &str) -> String {
+    if rel_path.is_empty() {
+        file_name.to_string_lossy().to_string()
+    } else {
+        format!("{}/{}", rel_path, file_name.to_string_lossy())
+    }
 }
 
 fn check_file(file: &Path) -> bool {
