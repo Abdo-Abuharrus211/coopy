@@ -9,5 +9,8 @@ Building a tool to sync my blog content with my Obsidian vault. Selectively choo
  - [X] Check if ready for publishing
  - [X] Copy the files to the destination directory
  - [X] Only copy files in specific folders
- - [ ] Clean up the feedback to user
+ - [ ] Complete config implementation
+ - [ ] Add command line arguments and flags
+ - [ ] Move User I/O to separate function
+ - [ ] Add function docs? Is this idiomatic?
  - [ ] Refactor and modularize the functions
