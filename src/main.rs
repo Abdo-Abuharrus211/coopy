@@ -2,9 +2,9 @@
 
 use serde::Deserialize;
 use std::path::Path;
+use std::process::exit;
 use std::string::String;
 use std::{fs, io};
-use std::process::exit;
 
 #[derive(Debug, Deserialize)]
 struct Frontmatter {
@@ -13,7 +13,6 @@ struct Frontmatter {
     // draft: Option<bool>,
     // tags: Option<Vec<String>>,
 }
-
 
 #[derive(Deserialize)]
 struct Config {
@@ -25,7 +24,6 @@ struct UserConf {
     source: String,
     target: String,
 }
-
 
 const FOLDERS: [&str; 7] = [
     "Blog",
@@ -46,14 +44,10 @@ const FORBIDDEN: [&str; 5] = [
 
 const CONFIG_FILE: &str = "config.toml";
 
-// This frontmatter tag to be checked if it's true or false (turn into Enum?)
-// const TAGS: [&str; 1] = ["publish"];
-
 fn main() -> Result<(), io::Error> {
     let source = String::from("/home/dev/Documents/ObsidianVaults/MyObsidian");
     let target = String::from("/home/dev/Documents/ObsidianVaults/Garden/content");
 
-    //TODO: implement the config I/O
     let conf_contents = match fs::read_to_string(CONFIG_FILE) {
         Ok(c) => c,
         Err(_) => {
@@ -63,14 +57,13 @@ fn main() -> Result<(), io::Error> {
     };
 
     // The data gets serialized into a Config Struct including the UserConf struct for user settings.
-    let settings: Config = match toml::from_str(&conf_contents){
+    let settings: Config = match toml::from_str(&conf_contents) {
         Ok(s) => s,
         Err(e) => {
             eprintln!("Error parsing settings from: {}", e);
             exit(1);
         }
     };
-
 
     /*
     TODO
@@ -119,7 +112,6 @@ fn traverse_folder(dir: &Path, relative_path: &str) -> io::Result<Vec<String>> {
     let mut tar_files: Vec<String> = Vec::new();
     if dir.is_dir() {
         for entry in fs::read_dir(dir)? {
-            // TODO: is this idiomatic? Or should I do something else like daisy chaining?
             let current_entry = entry?;
             let path = current_entry.path();
             let entry_name = path.file_name().unwrap().to_string_lossy();
@@ -164,7 +156,6 @@ fn parse_obsd_frontmatter(file: &Path) -> Option<Frontmatter> {
         Ok(content) => content,
         Err(_) => return None,
     };
-
     // Check if not YAML frontmatter
     if let Some(line) = md_content.lines().next() {
         if line.trim() != "---" {
@@ -183,7 +174,6 @@ fn parse_obsd_frontmatter(file: &Path) -> Option<Frontmatter> {
         matter.push_str(line);
         matter.push_str("\n");
     }
-
     let frontmatter: Frontmatter = match serde_yaml::from_str(&matter) {
         Ok(fm) => fm,
         Err(_) => return None,
