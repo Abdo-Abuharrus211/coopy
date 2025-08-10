@@ -120,7 +120,6 @@ fn main() -> Result<(), io::Error> {
     let targeted_files = current_state.traverse_folder(Path::new(&formatted_source), "")?;
     println!("Copying {} files...", targeted_files.len());
 
-
     let success = sync_files(&targeted_files, &formatted_source, &formatted_target);
     if success {
         println!("Sync completed Successfully!");
@@ -144,13 +143,9 @@ fn sync_files(files: &Vec<String>, src: &String, tgt: &String) -> bool {
             }
         }
 
-        // TODO :  refactor to if let
-        let _copied = match fs::copy(&from, to) {
-            Ok(r) => r,
-            Err(e) => {
-                println!("Error copying the file {}: {}", &from, e);
-                continue;
-            }
+        if let Err(e) = fs::copy(&from, to) {
+            eprintln!("Error copying the file {}: {}", &from, e);
+            continue;
         };
     }
     success
