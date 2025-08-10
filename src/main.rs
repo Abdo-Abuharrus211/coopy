@@ -109,6 +109,9 @@ fn main() -> Result<(), io::Error> {
     Ok(())
 }
 
+/// Traverse the given directory.
+///
+/// Recursively traverses the directory for files and checks if they're allowed/forbidden.
 fn traverse_folder(start: &Path, relative_path: &str) -> io::Result<Vec<String>> {
     let mut tar_files: Vec<String> = Vec::new();
     if start.is_dir() {
@@ -136,6 +139,10 @@ fn traverse_folder(start: &Path, relative_path: &str) -> io::Result<Vec<String>>
     Ok(tar_files)
 }
 
+/// Build the relative path for a file.
+///
+/// Based on the file's location in the vault, build similar path in the target directory
+/// by concatenating the paths.
 fn build_rel_path(file_name: &Path, rel_path: &str) -> String {
     if rel_path.is_empty() {
         file_name.to_string_lossy().to_string()
@@ -144,6 +151,9 @@ fn build_rel_path(file_name: &Path, rel_path: &str) -> String {
     }
 }
 
+/// Check that a file's marked for publishing, i,e syncing.
+///
+/// Each Obsidian file has a property `publish` which is a boolean.
 fn check_file(file: &Path) -> bool {
     if let Some(frontmatter) = parse_obsd_frontmatter(&file) {
         frontmatter.publish.unwrap_or(false)
@@ -152,6 +162,9 @@ fn check_file(file: &Path) -> bool {
     }
 }
 
+/// Parse the frontmatter which is often YAML in Obsidian files.
+///
+/// Obsidian uses YAML frontmatter between a set of `---`, read file and serialize the properties.
 fn parse_obsd_frontmatter(file: &Path) -> Option<Frontmatter> {
     let md_content = match fs::read_to_string(file) {
         Ok(content) => content,
