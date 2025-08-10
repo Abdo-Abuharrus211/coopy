@@ -168,12 +168,7 @@ fn check_file(file: &Path) -> bool {
 fn parse_obsd_frontmatter(file: &Path) -> Option<Frontmatter> {
     let md_content = match fs::read_to_string(file) {
         Ok(content) => content,
-        Err(e) => {
-            eprintln!(
-                "Error reading Frontmatter from {} : {}",
-                file.file_name().unwrap().to_string_lossy(), e);
-            return None;
-        }
+        Err(_) => return None,
     };
     // Check if not YAML frontmatter
     if let Some(line) = md_content.lines().next() {
