@@ -15,8 +15,9 @@ struct Frontmatter {
 }
 
 #[derive(Deserialize)]
+#[serde(rename_all(serialize = "kebab-case", deserialize = "kebab-case"))]
 struct Config {
-    user_conf: UserConf,
+    user_config: UserConf,
 }
 
 #[derive(Deserialize)]
@@ -92,7 +93,6 @@ fn main() -> Result<(), io::Error> {
     for file in targeted_files {
         let from = formatted_source.to_string() + "/" + &file;
         let to = formatted_target.to_string() + "/" + &file;
-        println!("{to}");
         // Ensure the parent directory exists
         if let Some(parent) = Path::new(&to).parent() {
             fs::create_dir_all(parent)?;
