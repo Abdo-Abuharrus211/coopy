@@ -120,14 +120,31 @@ fn main() -> Result<(), io::Error> {
     let targeted_files = current_state.traverse_folder(Path::new(&formatted_source), "")?;
     println!("Copying {} files...", targeted_files.len());
 
-    // TODO: move this into a func
-    for file in targeted_files {
-        let from = formatted_source.to_string() + "/" + &file;
-        let to = formatted_target.to_string() + "/" + &file;
+
+    let success = sync_files(&targeted_files, &formatted_source, &formatted_target);
+    if success {
+        println!("Sync completed Successfully!");
+    } else {
+        println!("Sync completed with some failures");
+    }
+    Ok(())
+}
+
+fn sync_files(files: &Vec<String>, src: &String, tgt: &String) -> bool {
+    let mut success = true;
+    for file in files {
+        let from = src.to_string() + "/" + &file;
+        let to = tgt.to_string() + "/" + &file;
         // Ensure the parent directory exists
         if let Some(parent) = Path::new(&to).parent() {
-            fs::create_dir_all(parent)?;
+            if let Err(e) = fs::create_dir_all(parent) {
+                eprintln!("Error creating directory {}: {}", parent.display(), e);
+                success = false;
+                continue;
+            }
         }
+
+        // TODO :  refactor to if let
         let _copied = match fs::copy(&from, to) {
             Ok(r) => r,
             Err(e) => {
@@ -136,6 +153,5 @@ fn main() -> Result<(), io::Error> {
             }
         };
     }
-    println!("Sync complete");
-    Ok(())
+    success
 }
