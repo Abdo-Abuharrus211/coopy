@@ -17,24 +17,71 @@ struct Config {
 struct UserConf {
     source: String,
     target: String,
+    folders: Vec<String>,
+    forbidden: Vec<String>,
 }
 
-const FOLDERS: [&str; 7] = [
-    "Blog",
-    "Knowledge Base",
-    "Resources",
-    "Self Learning",
-    "Ramblings",
-    "Tech Resources",
-    "Clippings",
-];
-const FORBIDDEN: [&str; 5] = [
-    "Personal Stuff",
-    "Politics and History",
-    "Finances",
-    "Self Care",
-    "Tasks",
-];
+struct State {
+    config: Config,
+}
+
+impl State {
+    /// Traverse the given directory.
+    ///
+    /// Recursively traverses the directory for files and checks if they're allowed/forbidden.
+    fn traverse_folder(&self, start: &Path, relative_path: &str) -> io::Result<Vec<String>> {
+        let mut tar_files: Vec<String> = Vec::new();
+        if start.is_dir() {
+            for entry in fs::read_dir(start)? {
+                // let current_entry = entry?;
+                let path = entry?.path();
+                let entry_name = path.file_name().unwrap().to_string_lossy();
+                let new_rel_path =
+                    util::build_rel_path(Path::new(&entry_name.to_string()), relative_path);
+
+                if path.is_dir() {
+                    if self
+                        .config
+                        .user_config
+                        .folders
+                        .contains(entry_name.as_ref())
+                        || !self
+                            .config
+                            .user_config
+                            .forbidden
+                            .contains(&entry_name.as_ref())
+                    {
+                        let sub_dirs = traverse_folder(&path, &new_rel_path)?;
+                        tar_files.extend(sub_dirs);
+                    }
+                } else if path.is_file() && util::check_file(&path) {
+                    println!("Adding file {}", new_rel_path);
+                    tar_files.push(new_rel_path);
+                }
+            }
+        } else if start.is_file() && util::check_file(&start) {
+            tar_files.push(util::build_rel_path(start, relative_path));
+        }
+        Ok(tar_files)
+    }
+}
+
+// const FOLDERS: [&str; 7] = [
+//     "Blog",
+//     "Knowledge Base",
+//     "Resources",
+//     "Self Learning",
+//     "Ramblings",
+//     "Tech Resources",
+//     "Clippings",
+// ];
+// const FORBIDDEN: [&str; 5] = [
+//     "Personal Stuff",
+//     "Politics and History",
+//     "Finances",
+//     "Self Care",
+//     "Tasks",
+// ];
 
 const CONFIG_FILE: &str = "config.toml";
 
@@ -61,8 +108,12 @@ fn main() -> Result<(), io::Error> {
         }
     };
 
+    let current_state = State { config: settings };
+
     // Prompt for paths if not
-    if settings.user_config.source == "" && settings.user_config.target == "" {
+    if current_state.config.user_config.source == ""
+        && current_state.config.user_config.target == ""
+    {
         println!("Obsidian vault's (source) path.");
         io::stdin()
             .read_line(&mut source)
@@ -71,15 +122,16 @@ fn main() -> Result<(), io::Error> {
         io::stdin()
             .read_line(&mut target)
             .expect("Error reading target path!");
-    } else {
-        source = settings.user_config.source;
-        target = settings.user_config.target;
     }
+    // else {
+    //     source = current_state.config.user_config.source;
+    //     target = current_state.config.user_config.target;
+    // }
 
-    let formatted_source = source.trim();
-    let formatted_target = target.trim();
+    let formatted_source = current_state.config.user_config.source.trim().to_string();
+    let formatted_target = current_state.config.user_config.target.trim().to_string();
 
-    let targeted_files = traverse_folder(Path::new(formatted_source), "")?;
+    let targeted_files = current_state.traverse_folder(Path::new(&formatted_source), "")?;
     println!("Copying {} files...", targeted_files.len());
 
     // TODO: move this into a func
@@ -100,34 +152,4 @@ fn main() -> Result<(), io::Error> {
     }
     println!("Sync complete");
     Ok(())
-}
-
-/// Traverse the given directory.
-///
-/// Recursively traverses the directory for files and checks if they're allowed/forbidden.
-fn traverse_folder(start: &Path, relative_path: &str) -> io::Result<Vec<String>> {
-    let mut tar_files: Vec<String> = Vec::new();
-    if start.is_dir() {
-        for entry in fs::read_dir(start)? {
-            // let current_entry = entry?;
-            let path = entry?.path();
-            let entry_name = path.file_name().unwrap().to_string_lossy();
-            let new_rel_path = util::build_rel_path(Path::new(&entry_name.to_string()), relative_path);
-
-            if path.is_dir() {
-                if FOLDERS.contains(&entry_name.as_ref())
-                    || !FORBIDDEN.contains(&entry_name.as_ref())
-                {
-                    let sub_dirs = traverse_folder(&path, &new_rel_path)?;
-                    tar_files.extend(sub_dirs);
-                }
-            } else if path.is_file() && util::check_file(&path) {
-                println!("Adding file {}", new_rel_path);
-                tar_files.push(new_rel_path);
-            }
-        }
-    } else if start.is_file() && util::check_file(&start) {
-        tar_files.push(util::build_rel_path(start, relative_path));
-    }
-    Ok(tar_files)
 }
