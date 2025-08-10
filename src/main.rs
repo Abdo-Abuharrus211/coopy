@@ -40,18 +40,21 @@ impl State {
                     util::build_rel_path(Path::new(&entry_name.to_string()), relative_path);
 
                 if path.is_dir() {
+                    let entry_str = entry_name.as_ref();
                     if self
                         .config
                         .user_config
                         .folders
-                        .contains(entry_name.as_ref())
+                        .iter()
+                        .any(|f| f == entry_str)
                         || !self
                             .config
                             .user_config
                             .forbidden
-                            .contains(&entry_name.as_ref())
+                            .iter()
+                            .any(|f| f == entry_str)
                     {
-                        let sub_dirs = traverse_folder(&path, &new_rel_path)?;
+                        let sub_dirs = self.traverse_folder(&path, &new_rel_path)?;
                         tar_files.extend(sub_dirs);
                     }
                 } else if path.is_file() && util::check_file(&path) {
@@ -59,36 +62,19 @@ impl State {
                     tar_files.push(new_rel_path);
                 }
             }
-        } else if start.is_file() && util::check_file(&start) {
+        } else if start.is_file() & &util::check_file(&start) {
             tar_files.push(util::build_rel_path(start, relative_path));
         }
         Ok(tar_files)
     }
 }
 
-// const FOLDERS: [&str; 7] = [
-//     "Blog",
-//     "Knowledge Base",
-//     "Resources",
-//     "Self Learning",
-//     "Ramblings",
-//     "Tech Resources",
-//     "Clippings",
-// ];
-// const FORBIDDEN: [&str; 5] = [
-//     "Personal Stuff",
-//     "Politics and History",
-//     "Finances",
-//     "Self Care",
-//     "Tasks",
-// ];
-
 const CONFIG_FILE: &str = "config.toml";
 
 fn main() -> Result<(), io::Error> {
+    // TODO: Clean this up later
     // let test_src = String::from("/home/dev/Documents/ObsidianVaults/MyObsidian");
     // let test_tgt = String::from("/home/dev/Documents/ObsidianVaults/Garden/content");
-
     let mut source = String::new();
     let mut target = String::new();
 
