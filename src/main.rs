@@ -1,4 +1,4 @@
-// Copy the notes from target folder containing the correct frontmatter tags.
+// Copy the notes from the target folder containing the correct frontmatter tags.
 
 use serde::Deserialize;
 use std::path::Path;
@@ -45,8 +45,11 @@ const FORBIDDEN: [&str; 5] = [
 const CONFIG_FILE: &str = "config.toml";
 
 fn main() -> Result<(), io::Error> {
-    let source = String::from("/home/dev/Documents/ObsidianVaults/MyObsidian");
-    let target = String::from("/home/dev/Documents/ObsidianVaults/Garden/content");
+    // let test_src = String::from("/home/dev/Documents/ObsidianVaults/MyObsidian");
+    // let test_tgt = String::from("/home/dev/Documents/ObsidianVaults/Garden/content");
+
+    let mut source = String::new();
+    let mut target = String::new();
 
     let conf_contents = match fs::read_to_string(CONFIG_FILE) {
         Ok(c) => c,
@@ -55,7 +58,6 @@ fn main() -> Result<(), io::Error> {
             exit(1);
         }
     };
-
     // The data gets serialized into a Config Struct including the UserConf struct for user settings.
     let settings: Config = match toml::from_str(&conf_contents) {
         Ok(s) => s,
@@ -65,32 +67,29 @@ fn main() -> Result<(), io::Error> {
         }
     };
 
-    /*
-    TODO
-        - If settings loaded -> parse, extract, serialize into struct
-        - else, prompt the user for source and target
-     */
+    // Prompt for paths if not
+    if settings.user_conf.source == "" && settings.user_conf.target != settings.user_conf.source {
+        println!("Obsidian vault's (source) path.");
+        io::stdin()
+            .read_line(&mut source)
+            .expect("Error reading source path!");
+        println!("Target path: ");
+        io::stdin()
+            .read_line(&mut target)
+            .expect("Error reading target path!");
+    } else {
+        source = settings.user_conf.source;
+        target = settings.user_conf.target;
+    }
 
-    // If you need some user input...
-    // let mut source = String::new();
-    // let mut target = String::new();
-    // println!("Obsidian vault's (source) path.");
-    // io::stdin()
-    //     .read_line(&mut source)
-    //     .expect("Error reading source path!");
-    // println!("Target path: ");
-    // io::stdin()
-    //     .read_line(&mut target)
-    //     .expect("Error reading target path!");
+    let formatted_source = source.trim();
+    let formatted_target = target.trim();
 
-    let form_src = source.trim();
-    let form_target = target.trim();
-
-    let targeted_files = traverse_folder(Path::new(form_src), "")?;
+    let targeted_files = traverse_folder(Path::new(formatted_source), "")?;
     println!("Copying {} files...", targeted_files.len());
     for file in targeted_files {
-        let from = form_src.to_string() + "/" + &file;
-        let to = form_target.to_string() + "/" + &file;
+        let from = formatted_source.to_string() + "/" + &file;
+        let to = formatted_target.to_string() + "/" + &file;
         println!("{to}");
         // Ensure the parent directory exists
         if let Some(parent) = Path::new(&to).parent() {
