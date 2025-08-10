@@ -1,6 +1,14 @@
+use serde::Deserialize;
 use std::fs;
 use std::path::Path;
-use crate::Frontmatter;
+
+#[derive(Debug, Deserialize)]
+pub struct Frontmatter {
+    publish: Option<bool>,
+    // tags: Option<Vec<String>>,
+    // draft: Option<bool>,
+    // date: Option<String>,
+}
 
 /// Build the relative path for a file.
 ///

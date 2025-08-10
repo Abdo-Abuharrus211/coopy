@@ -1,21 +1,11 @@
 // Copy the notes from the target folder containing the correct frontmatter tags.
 
-use crate::util::{build_rel_path, check_file};
 use serde::{Deserialize, Serialize};
 use std::path::Path;
 use std::process::exit;
 use std::string::String;
 use std::{fs, io};
-
 mod util;
-
-#[derive(Debug, Deserialize)]
-struct Frontmatter {
-    publish: Option<bool>,
-    // tags: Option<Vec<String>>,
-    // draft: Option<bool>,
-    // date: Option<String>,
-}
 
 #[derive(Serialize, Deserialize)]
 #[serde(rename_all(serialize = "kebab-case", deserialize = "kebab-case"))]
@@ -122,7 +112,7 @@ fn traverse_folder(start: &Path, relative_path: &str) -> io::Result<Vec<String>>
             // let current_entry = entry?;
             let path = entry?.path();
             let entry_name = path.file_name().unwrap().to_string_lossy();
-            let new_rel_path = build_rel_path(Path::new(&entry_name.to_string()), relative_path);
+            let new_rel_path = util::build_rel_path(Path::new(&entry_name.to_string()), relative_path);
 
             if path.is_dir() {
                 if FOLDERS.contains(&entry_name.as_ref())
@@ -131,13 +121,13 @@ fn traverse_folder(start: &Path, relative_path: &str) -> io::Result<Vec<String>>
                     let sub_dirs = traverse_folder(&path, &new_rel_path)?;
                     tar_files.extend(sub_dirs);
                 }
-            } else if path.is_file() && check_file(&path) {
+            } else if path.is_file() && util::check_file(&path) {
                 println!("Adding file {}", new_rel_path);
                 tar_files.push(new_rel_path);
             }
         }
-    } else if start.is_file() && check_file(&start) {
-        tar_files.push(build_rel_path(start, relative_path));
+    } else if start.is_file() && util::check_file(&start) {
+        tar_files.push(util::build_rel_path(start, relative_path));
     }
     Ok(tar_files)
 }
