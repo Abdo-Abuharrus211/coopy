@@ -69,7 +69,7 @@ fn main() -> Result<(), io::Error> {
     };
 
     // Prompt for paths if not
-    if settings.user_conf.source == "" && settings.user_conf.target != settings.user_conf.source {
+    if settings.user_config.source == "" && settings.user_config.target == "" {
         println!("Obsidian vault's (source) path.");
         io::stdin()
             .read_line(&mut source)
@@ -79,8 +79,8 @@ fn main() -> Result<(), io::Error> {
             .read_line(&mut target)
             .expect("Error reading target path!");
     } else {
-        source = settings.user_conf.source;
-        target = settings.user_conf.target;
+        source = settings.user_config.source;
+        target = settings.user_config.target;
     }
 
     let formatted_source = source.trim();
