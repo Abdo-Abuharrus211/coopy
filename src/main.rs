@@ -58,7 +58,7 @@ fn main() -> Result<(), io::Error> {
             exit(1);
         }
     };
-    // The data gets serialized into a Config Struct including the UserConf struct for user settings.
+    // The data's serialized into a Config Struct including the UserConf struct for user settings.
     let settings: Config = match toml::from_str(&conf_contents) {
         Ok(s) => s,
         Err(e) => {
@@ -87,6 +87,8 @@ fn main() -> Result<(), io::Error> {
 
     let targeted_files = traverse_folder(Path::new(formatted_source), "")?;
     println!("Copying {} files...", targeted_files.len());
+
+    // TODO: move this into a func
     for file in targeted_files {
         let from = formatted_source.to_string() + "/" + &file;
         let to = formatted_target.to_string() + "/" + &file;
@@ -107,12 +109,12 @@ fn main() -> Result<(), io::Error> {
     Ok(())
 }
 
-fn traverse_folder(dir: &Path, relative_path: &str) -> io::Result<Vec<String>> {
+fn traverse_folder(start: &Path, relative_path: &str) -> io::Result<Vec<String>> {
     let mut tar_files: Vec<String> = Vec::new();
-    if dir.is_dir() {
-        for entry in fs::read_dir(dir)? {
-            let current_entry = entry?;
-            let path = current_entry.path();
+    if start.is_dir() {
+        for entry in fs::read_dir(start)? {
+            // let current_entry = entry?;
+            let path = entry?.path();
             let entry_name = path.file_name().unwrap().to_string_lossy();
             let new_rel_path = build_rel_path(Path::new(&entry_name.to_string()), relative_path);
 
@@ -128,8 +130,8 @@ fn traverse_folder(dir: &Path, relative_path: &str) -> io::Result<Vec<String>> {
                 tar_files.push(new_rel_path);
             }
         }
-    } else if dir.is_file() && check_file(&dir) {
-        tar_files.push(build_rel_path(dir, relative_path));
+    } else if start.is_file() && check_file(&start) {
+        tar_files.push(build_rel_path(start, relative_path));
     }
     Ok(tar_files)
 }
@@ -153,7 +155,12 @@ fn check_file(file: &Path) -> bool {
 fn parse_obsd_frontmatter(file: &Path) -> Option<Frontmatter> {
     let md_content = match fs::read_to_string(file) {
         Ok(content) => content,
-        Err(_) => return None,
+        Err(e) => {
+            eprintln!(
+                "Error reading Frontmatter from {} : {}",
+                file.file_name().unwrap().to_string_lossy(), e);
+            return None;
+        }
     };
     // Check if not YAML frontmatter
     if let Some(line) = md_content.lines().next() {
