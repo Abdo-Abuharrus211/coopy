@@ -1,6 +1,6 @@
 // Copy the notes from the target folder containing the correct frontmatter tags.
 
-use serde::Deserialize;
+use serde::{Serialize, Deserialize};
 use std::path::Path;
 use std::process::exit;
 use std::string::String;
@@ -14,13 +14,13 @@ struct Frontmatter {
     // tags: Option<Vec<String>>,
 }
 
-#[derive(Deserialize)]
+#[derive(Serialize, Deserialize)]
 #[serde(rename_all(serialize = "kebab-case", deserialize = "kebab-case"))]
 struct Config {
     user_config: UserConf,
 }
 
-#[derive(Deserialize)]
+#[derive(Serialize, Deserialize)]
 struct UserConf {
     source: String,
     target: String,
