@@ -16,7 +16,7 @@ The next step is to convert it into a proper Obsidian Plugin!
  - [X] Check if ready for publishing
  - [X] Copy the files to the destination directory
  - [X] Only copy files in specific folders
- - [ ] Complete config implementation
+ - [X] Complete config implementation
  - [ ] Add command line arguments and flags
  - [ ] Write the new paths to the config file if user flags to save
  - [ ] Move User I/O to separate function
