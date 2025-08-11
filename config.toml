@@ -1,0 +1,8 @@
+# Coopy config settings
+
+[user-config]
+source = "/home/dev/Documents/ObsidianVaults/MyObsidian"
+target = "/home/dev/Documents/ObsidianVaults/Garden/content"
+folders = ["Blog", "Knowledge Base", "Resources", "Self Learning", "Ramblings", "Tech Resources", "Clippings"]
+forbidden = ["Personal Stuff", "Politics and History", "Finances", "Self Care", "Tasks"]
+
