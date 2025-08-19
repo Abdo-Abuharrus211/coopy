@@ -25,13 +25,14 @@ pub struct Args {
 impl Args {
     /// Process the 'add' and 'del' commands and their potential args 'folders' and 'forbidden'
     pub fn process_args(&self) {}
-    fn add_folders() {}
-
-    fn del_folders() {}
-
-    fn add_forbidden() {}
-
-    fn del_forbidden() {}
+    // TODO: implement these functions to update the config file
+    // fn add_folders() {}
+    //
+    // fn del_folders() {}
+    //
+    // fn add_forbidden() {}
+    //
+    // fn del_forbidden() {}
 }
 
 pub fn read_args() -> Args {
