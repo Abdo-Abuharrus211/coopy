@@ -2,8 +2,7 @@
 
 use crate::args::read_args;
 use serde::{Deserialize, Serialize};
-use std::env::Args;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 use std::process::exit;
 use std::string::String;
 use std::{fs, io};
@@ -72,32 +71,23 @@ impl State {
         Ok(tar_files)
     }
 
-    fn load_paths(&self) {
-        if self.config.user_config.source == "" || self.config.user_config.target == "" {
-
-        }
+    fn prompt_user_paths(&mut self) {
+        println!("Obsidian vault's (source) path.");
+        io::stdin()
+            .read_line(&mut self.config.user_config.source)
+            .expect("Error reading source path!");
+        println!("Target path: ");
+        io::stdin()
+            .read_line(&mut self.config.user_config.target)
+            .expect("Error reading target path!");
     }
 }
 
 const CONFIG_FILE: &str = "config.toml";
 
 fn main() -> Result<(), io::Error> {
-    // TODO: Clean this up later
-    // let test_src = String::from("/home/dev/Documents/ObsidianVaults/MyObsidian");
-    // let test_tgt = String::from("/home/dev/Documents/ObsidianVaults/Garden/content");
-    let mut source = String::new();
-    let mut target = String::new();
-
     let command_args: args::Args = read_args();
     // TODO: Process the commands and their variables command_args.process_args();
-    if let Some(s) = command_args.source {
-        source = s;
-    }
-    if let Some(t) = command_args.target {
-        target = t;
-    }
-
-
 
     let conf_contents = match fs::read_to_string(CONFIG_FILE) {
         Ok(c) => c,
@@ -115,30 +105,25 @@ fn main() -> Result<(), io::Error> {
         }
     };
 
-    let current_state = State { config: settings };
+    let mut current_state = State { config: settings };
+    if let Some(s) = command_args.source {
+        current_state.config.user_config.source = s;
+    }
+    if let Some(t) = command_args.target {
+        current_state.config.user_config.target = t;
+    }
 
-    // TODO: Fix this needs to adjust the current state not the `source` and `target` variables
     // Prompt User for paths if they're not saved in the config file
     if current_state.config.user_config.source == ""
         && current_state.config.user_config.target == ""
     {
-        println!("Obsidian vault's (source) path.");
-        io::stdin()
-            .read_line(&mut source)
-            .expect("Error reading source path!");
-        println!("Target path: ");
-        io::stdin()
-            .read_line(&mut target)
-            .expect("Error reading target path!");
+        current_state.prompt_user_paths();
     }
 
-    // TODO: consolidate this between: current_state, User I/O, and command_args
     let formatted_source = current_state.config.user_config.source.trim().to_string();
     let formatted_target = current_state.config.user_config.target.trim().to_string();
-
     let targeted_files = current_state.traverse_folder(Path::new(&formatted_source), "")?;
     println!("Copying {} files...", targeted_files.len());
-
     let success = sync_files(&targeted_files, &formatted_source, &formatted_target);
     if success {
         println!("Sync completed Successfully!");
