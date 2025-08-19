@@ -83,6 +83,19 @@ impl State {
             .read_line(&mut self.config.user_config.target)
             .expect("Error reading target path!");
     }
+
+    fn load_paths(&mut self, input_src: Option<String>, input_tar: Option<String>) {
+        if let Some(s) = input_src {
+            self.config.user_config.source = s;
+        }
+        if let Some(t) = input_tar {
+            self.config.user_config.target = t;
+        }
+        // Prompt User for paths if they're not saved in the config file
+        else if self.config.user_config.source == "" && self.config.user_config.target == "" {
+            self.prompt_user_paths();
+        }
+    }
 }
 
 fn main() -> Result<(), io::Error> {
@@ -106,19 +119,20 @@ fn main() -> Result<(), io::Error> {
     };
 
     let mut current_state = State { config: settings };
-    if let Some(s) = command_args.source {
-        current_state.config.user_config.source = s;
-    }
-    if let Some(t) = command_args.target {
-        current_state.config.user_config.target = t;
-    }
-
-    // Prompt User for paths if they're not saved in the config file
-    if current_state.config.user_config.source == ""
-        && current_state.config.user_config.target == ""
-    {
-        current_state.prompt_user_paths();
-    }
+    current_state.load_paths(command_args.source, command_args.target);
+    // if let Some(s) = command_args.source {
+    //     current_state.config.user_config.source = s;
+    // }
+    // if let Some(t) = command_args.target {
+    //     current_state.config.user_config.target = t;
+    // }
+    //
+    // // Prompt User for paths if they're not saved in the config file
+    // if current_state.config.user_config.source == ""
+    //     && current_state.config.user_config.target == ""
+    // {
+    //     current_state.prompt_user_paths();
+    // }
 
     let formatted_source = current_state.config.user_config.source.trim().to_string();
     let formatted_target = current_state.config.user_config.target.trim().to_string();
