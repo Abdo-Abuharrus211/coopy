@@ -1,10 +1,14 @@
 // Copy the notes from the target folder containing the correct frontmatter tags.
 
+use crate::args::read_args;
 use serde::{Deserialize, Serialize};
-use std::path::Path;
+use std::env::Args;
+use std::path::{Path, PathBuf};
 use std::process::exit;
 use std::string::String;
 use std::{fs, io};
+
+mod args;
 mod util;
 
 #[derive(Serialize, Deserialize)]
@@ -67,6 +71,12 @@ impl State {
         }
         Ok(tar_files)
     }
+
+    fn load_paths(&self) {
+        if self.config.user_config.source == "" || self.config.user_config.target == "" {
+
+        }
+    }
 }
 
 const CONFIG_FILE: &str = "config.toml";
@@ -77,6 +87,17 @@ fn main() -> Result<(), io::Error> {
     // let test_tgt = String::from("/home/dev/Documents/ObsidianVaults/Garden/content");
     let mut source = String::new();
     let mut target = String::new();
+
+    let command_args: args::Args = read_args();
+    // TODO: Process the commands and their variables command_args.process_args();
+    if let Some(s) = command_args.source {
+        source = s;
+    }
+    if let Some(t) = command_args.target {
+        target = t;
+    }
+
+
 
     let conf_contents = match fs::read_to_string(CONFIG_FILE) {
         Ok(c) => c,
@@ -96,7 +117,8 @@ fn main() -> Result<(), io::Error> {
 
     let current_state = State { config: settings };
 
-    // Prompt for paths if not
+    // TODO: Fix this needs to adjust the current state not the `source` and `target` variables
+    // Prompt User for paths if they're not saved in the config file
     if current_state.config.user_config.source == ""
         && current_state.config.user_config.target == ""
     {
@@ -109,11 +131,8 @@ fn main() -> Result<(), io::Error> {
             .read_line(&mut target)
             .expect("Error reading target path!");
     }
-    // else {
-    //     source = current_state.config.user_config.source;
-    //     target = current_state.config.user_config.target;
-    // }
 
+    // TODO: consolidate this between: current_state, User I/O, and command_args
     let formatted_source = current_state.config.user_config.source.trim().to_string();
     let formatted_target = current_state.config.user_config.target.trim().to_string();
 
