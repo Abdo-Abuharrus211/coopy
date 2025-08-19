@@ -10,6 +10,8 @@ use std::{fs, io};
 mod args;
 mod util;
 
+const CONFIG_FILE: &str = "config.toml";
+
 #[derive(Serialize, Deserialize)]
 #[serde(rename_all(serialize = "kebab-case", deserialize = "kebab-case"))]
 struct Config {
@@ -83,11 +85,9 @@ impl State {
     }
 }
 
-const CONFIG_FILE: &str = "config.toml";
-
 fn main() -> Result<(), io::Error> {
     let command_args: args::Args = read_args();
-    // TODO: Process the commands and their variables command_args.process_args();
+    // TODO: Process the commands and their variables `command_args.process_args();`
 
     let conf_contents = match fs::read_to_string(CONFIG_FILE) {
         Ok(c) => c,
@@ -96,7 +96,7 @@ fn main() -> Result<(), io::Error> {
             exit(1);
         }
     };
-    // The data's serialized into a Config Struct including the UserConf struct for user settings.
+    // The data's serialized as a Config Struct incl. the UserConf struct for user settings.
     let settings: Config = match toml::from_str(&conf_contents) {
         Ok(s) => s,
         Err(e) => {
