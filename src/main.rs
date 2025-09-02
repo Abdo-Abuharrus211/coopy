@@ -10,7 +10,7 @@ use std::{fs, io};
 mod args;
 mod util;
 
-const CONFIG_FILE: &str = "config.toml";
+pub const CONFIG_FILE: &str = "config.toml";
 
 #[derive(Serialize, Deserialize)]
 #[serde(rename_all(serialize = "kebab-case", deserialize = "kebab-case"))]
