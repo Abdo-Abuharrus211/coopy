@@ -1,25 +1,34 @@
-use clap::Parser;
+use std::fs;
+use crate::{State, CONFIG_FILE};
+use clap::builder::Str;
+use clap::{Command, Parser, Subcommand};
+use toml::Value;
+
+#[derive(Subcommand, Debug)]
+pub enum Commands {
+    /// Add items to a config array
+    Add {
+        /// Array to modify: 'folders' or 'forbidden'
+        kind: String,
+        /// String of comma separated values (folder names)
+        value: String,
+    },
+    /// Remove items from a config array
+    Delete { kind: String, value: String },
+}
 
 #[derive(Parser, Debug)]
-#[command(about, long_about = None)]
+#[command(author, about, long_about = None)]
 pub struct Args {
     /// Path of vault to copy from
     #[arg(short, long)]
-    pub(crate) source: Option<String>,
+    pub source: Option<String>,
     /// Path to copy to
     #[arg(short, long)]
-    pub(crate) target: Option<String>,
+    pub target: Option<String>,
 
-    /// Add folder name to a list (`folders` or `forbidden`)
-    #[arg(short, long, action)]
-    add: Option<String>,
-    /// Delete folder from a list (`folders` or `forbidden`)
-    #[arg(short, long, action)]
-    del: Option<String>,
-    ///Collection of folder names to check
-    folders: Option<Vec<String>>,
-    /// Collection of folder names to skip
-    forbidden: Option<Vec<String>>,
+    #[command(subcommand)]
+    pub command: Option<Commands>,
 }
 
 impl Args {
