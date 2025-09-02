@@ -10,7 +10,7 @@ Building a tool to sync my blog content with my Obsidian vault. Selectively choo
  - [X] Copy the files to the destination directory
  - [X] Only copy files in specific folders
  - [ ] Complete config implementation
- - [ ] Add command line arguments and flags
+ - [X] Add command line arguments and flags
  - [ ] Write the new paths to the config file if user flags to save
  - [ ] Looping and Error handling for the path selection process
  - [X] Move User I/O to separate function
