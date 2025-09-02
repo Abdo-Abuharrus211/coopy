@@ -99,8 +99,14 @@ impl State {
 }
 
 fn main() -> Result<(), io::Error> {
+    // Processing command line args, if any
     let command_args: args::Args = read_args();
-    // TODO: Process the commands and their variables `command_args.process_args();`
+    if command_args.source.is_some()
+        || command_args.target.is_some()
+        || command_args.command.is_some()
+    {
+        command_args.process_args();
+    }
 
     let conf_contents = match fs::read_to_string(CONFIG_FILE) {
         Ok(c) => c,
@@ -120,19 +126,6 @@ fn main() -> Result<(), io::Error> {
 
     let mut current_state = State { config: settings };
     current_state.load_paths(command_args.source, command_args.target);
-    // if let Some(s) = command_args.source {
-    //     current_state.config.user_config.source = s;
-    // }
-    // if let Some(t) = command_args.target {
-    //     current_state.config.user_config.target = t;
-    // }
-    //
-    // // Prompt User for paths if they're not saved in the config file
-    // if current_state.config.user_config.source == ""
-    //     && current_state.config.user_config.target == ""
-    // {
-    //     current_state.prompt_user_paths();
-    // }
 
     let formatted_source = current_state.config.user_config.source.trim().to_string();
     let formatted_target = current_state.config.user_config.target.trim().to_string();
