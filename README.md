@@ -14,5 +14,5 @@ Building a tool to sync my blog content with my Obsidian vault. Selectively choo
  - [ ] Write the new paths to the config file if user flags to save
  - [ ] Looping and Error handling for the path selection process
  - [X] Move User I/O to separate function
- - [ ] Add function docs? Is this idiomatic?
+ - [ ] Add function doc strings? Is this idiomatic?
  - [ ] Refactor and modularize the functions
