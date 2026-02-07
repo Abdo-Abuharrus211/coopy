@@ -1,7 +1,7 @@
-use std::{fs, io};
-use std::path::Path;
-use serde::{Deserialize, Serialize};
 use crate::util;
+use serde::{Deserialize, Serialize};
+use std::path::Path;
+use std::{fs, io};
 
 #[derive(Serialize, Deserialize)]
 #[serde(rename_all(serialize = "kebab-case", deserialize = "kebab-case"))]
@@ -40,17 +40,9 @@ impl State {
 
                 if path.is_dir() {
                     let entry_str = &entry_name;
-                    // TODO: clean up this check...
-                    if self
-                        .config
-                        .folders
-                        .iter()
-                        .any(|f| f == entry_str)
-                        || !self
-                        .config
-                        .forbidden
-                        .iter()
-                        .any(|f| f == entry_str)
+                    // Check if the directory is clear to proceed - includes parent folders...
+                    if self.config.folders.iter().any(|f| f == entry_str)
+                        || !self.config.forbidden.iter().any(|f| f == entry_str)
                     {
                         let sub_dirs = self.traverse_folder(&path, &new_rel_path)?;
                         tar_files.extend(sub_dirs);
@@ -90,7 +82,6 @@ impl State {
         }
     }
 }
-
 
 pub fn sync_files(files: &Vec<String>, src: &String, tgt: &String) -> bool {
     let mut success = true;
