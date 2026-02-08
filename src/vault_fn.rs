@@ -26,7 +26,6 @@ pub struct State {
 
 impl State {
     /// Traverse the given directory.
-    ///
     /// Recursively traverses the directory for files and checks if they're allowed/forbidden.
     pub fn traverse_folder(&self, start: &Path, relative_path: &str) -> io::Result<Vec<String>> {
         let mut tar_files: Vec<String> = Vec::new();
@@ -58,6 +57,7 @@ impl State {
         Ok(tar_files)
     }
 
+    /// Ask the user to provide Obsd vault and destination paths
     fn prompt_user_paths(&mut self) {
         print!("Obsidian vault's (source) path:");
         io::stdin()
@@ -69,6 +69,7 @@ impl State {
             .expect("Error reading target path!");
     }
 
+    ///  Load paths provided by user or prompt if none exist in the config
     pub fn load_paths(&mut self, input_src: Option<String>, input_tar: Option<String>) {
         if let Some(s) = input_src {
             self.config.source = s;
