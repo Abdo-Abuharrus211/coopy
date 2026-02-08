@@ -45,7 +45,7 @@ fn main() -> Result<(), io::Error> {
     let formatted_target = current_state.config.target.trim().to_string();
     let targeted_files = current_state.traverse_folder(Path::new(&formatted_source), "")?;
     println!("Copying {} files...", targeted_files.len());
-    let success = sync_files(&targeted_files, &formatted_source, &formatted_target);
+    let success = util::sync_files(&targeted_files, &formatted_source, &formatted_target);
     if success {
         println!("Sync completed Successfully!");
     } else {
