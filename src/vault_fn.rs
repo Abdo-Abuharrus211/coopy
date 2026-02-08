@@ -59,11 +59,11 @@ impl State {
     }
 
     fn prompt_user_paths(&mut self) {
-        println!("Obsidian vault's (source) path.");
+        print!("Obsidian vault's (source) path:");
         io::stdin()
             .read_line(&mut self.config.source)
             .expect("Error reading source path!");
-        println!("Target path: ");
+        print!("Target path: ");
         io::stdin()
             .read_line(&mut self.config.target)
             .expect("Error reading target path!");
