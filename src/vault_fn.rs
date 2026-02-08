@@ -11,6 +11,7 @@ pub struct Config {
     folders: Vec<String>,
     forbidden: Vec<String>,
 }
+// TODO: bring this back, rename the field in state to be user_config and rename the other gen_config
 // Struct Definitions
 // #[derive(Serialize, Deserialize)]
 // struct UserConf {
@@ -82,26 +83,4 @@ impl State {
             self.prompt_user_paths();
         }
     }
-}
-
-pub fn sync_files(files: &Vec<String>, src: &String, tgt: &String) -> bool {
-    let mut success = true;
-    for file in files {
-        let from = src.to_string() + "/" + &file;
-        let to = tgt.to_string() + "/" + &file;
-        // Ensure the parent directory exists
-        if let Some(parent) = Path::new(&to).parent() {
-            if let Err(e) = fs::create_dir_all(parent) {
-                eprintln!("Error creating directory {}: {}", parent.display(), e);
-                success = false;
-                continue;
-            }
-        }
-
-        if let Err(e) = fs::copy(&from, to) {
-            eprintln!("Error copying the file {}: {}", &from, e);
-            continue;
-        };
-    }
-    success
 }

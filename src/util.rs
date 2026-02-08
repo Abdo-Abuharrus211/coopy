@@ -34,7 +34,6 @@ pub fn check_file(file: &Path) -> bool {
 }
 
 /// Parse the frontmatter which is often YAML in Obsidian files.
-///
 /// Obsidian uses YAML frontmatter between a set of `---`, read file and serialize the properties.
 pub fn parse_obsd_frontmatter(file: &Path) -> Option<Frontmatter> {
     let md_content = match fs::read_to_string(file) {
@@ -64,4 +63,26 @@ pub fn parse_obsd_frontmatter(file: &Path) -> Option<Frontmatter> {
         Err(_) => return None,
     };
     Some(frontmatter)
+}
+/// Sync the files provided to 
+pub fn sync_files(files: &Vec<String>, src: &String, tgt: &String) -> bool {
+    let mut success = true;
+    for file in files {
+        let from = src.to_string() + "/" + &file;
+        let to = tgt.to_string() + "/" + &file;
+        // Ensure the parent directory exists
+        if let Some(parent) = Path::new(&to).parent() {
+            if let Err(e) = fs::create_dir_all(parent) {
+                eprintln!("Error creating directory {}: {}", parent.display(), e);
+                success = false;
+                continue;
+            }
+        }
+
+        if let Err(e) = fs::copy(&from, to) {
+            eprintln!("Error copying the file {}: {}", &from, e);
+            continue;
+        };
+    }
+    success
 }
