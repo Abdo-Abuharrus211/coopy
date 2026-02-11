@@ -41,8 +41,8 @@ fn main() -> Result<(), io::Error> {
     let mut current_state = State { config: settings };
     current_state.load_paths(command_args.source, command_args.target);
 
-    let formatted_source = current_state.config.source.trim().to_string();
-    let formatted_target = current_state.config.target.trim().to_string();
+    let formatted_source = current_state.config.user_settings.source.trim().to_string();
+    let formatted_target = current_state.config.user_settings.target.trim().to_string();
     let targeted_files = current_state.traverse_folder(Path::new(&formatted_source), "")?;
     println!("Copying {} files...", targeted_files.len());
     let success = util::sync_files(&targeted_files, &formatted_source, &formatted_target);

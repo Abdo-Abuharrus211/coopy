@@ -5,9 +5,9 @@ use std::{fs, io};
 
 
 #[derive(Serialize, Deserialize)]
-struct UserSettings {
-    source: String,
-    target: String,
+pub struct UserSettings {
+    pub(crate) source: String,
+    pub(crate) target: String,
     folders: Vec<String>,
     forbidden: Vec<String>,
 }
@@ -16,7 +16,7 @@ struct UserSettings {
 #[derive(Serialize, Deserialize)]
 #[serde(rename_all(serialize = "kebab-case", deserialize = "kebab-case"))]
 pub struct Config {
-    user_settings: UserSettings,
+    pub user_settings: UserSettings,
 }
 
 pub struct State {
@@ -39,8 +39,8 @@ impl State {
                 if path.is_dir() {
                     let entry_str = &entry_name;
                     // Check if the directory is clear to proceed - includes parent folders...
-                    if self.config.folders.iter().any(|f| f == entry_str)
-                        || !self.config.forbidden.iter().any(|f| f == entry_str)
+                    if self.config.user_settings.folders.iter().any(|f| f == entry_str)
+                        || !self.config.user_settings.forbidden.iter().any(|f| f == entry_str)
                     {
                         let sub_dirs = self.traverse_folder(&path, &new_rel_path)?;
                         tar_files.extend(sub_dirs);
@@ -60,24 +60,25 @@ impl State {
     fn prompt_user_paths(&mut self) {
         print!("Obsidian vault's (source) path:");
         io::stdin()
-            .read_line(&mut self.config.source)
+            .read_line(&mut self.config.user_settings.source)
             .expect("Error reading source path!");
         print!("Target path: ");
         io::stdin()
-            .read_line(&mut self.config.target)
+            .read_line(&mut self.config.user_settings.target)
             .expect("Error reading target path!");
     }
 
     ///  Load paths provided by user or prompt if none exist in the config
     pub fn load_paths(&mut self, input_src: Option<String>, input_tar: Option<String>) {
+        //TODO shoould name self.config.user_settings. ???
         if let Some(s) = input_src {
-            self.config.source = s;
+            self.config.user_settings.source = s;
         }
         if let Some(t) = input_tar {
-            self.config.target = t;
+            self.config.user_settings.target = t;
         }
         // Prompt User for paths if they're not saved in the config file
-        else if self.config.source == "" && self.config.target == "" {
+        else if self.config.user_settings.source == "" && self.config.user_settings.target == "" {
             self.prompt_user_paths();
         }
     }
