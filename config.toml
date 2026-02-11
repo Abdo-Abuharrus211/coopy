@@ -1,6 +1,6 @@
 # Coopy config settings
 
-[user-config]
+[user-settings]
 source = "/home/dev/Documents/ObsidianVaults/MyObsidian"
 target = "/home/dev/Documents/ObsidianVaults/Garden/content"
 folders = ["Blog", "Knowledge Base", "Resources", "Self Learning", "Ramblings", "Tech Resources", "Clippings"]
