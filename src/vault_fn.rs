@@ -3,23 +3,21 @@ use serde::{Deserialize, Serialize};
 use std::path::Path;
 use std::{fs, io};
 
+
 #[derive(Serialize, Deserialize)]
-#[serde(rename_all(serialize = "kebab-case", deserialize = "kebab-case"))]
-pub struct Config {
-    pub source: String,
-    pub target: String,
+struct UserSettings {
+    source: String,
+    target: String,
     folders: Vec<String>,
     forbidden: Vec<String>,
 }
-// TODO: bring this back, rename the field in state to be user_config and rename the other gen_config
+
 // Struct Definitions
-// #[derive(Serialize, Deserialize)]
-// struct UserConf {
-//     source: String,
-//     target: String,
-//     folders: Vec<String>,
-//     forbidden: Vec<String>,
-// }
+#[derive(Serialize, Deserialize)]
+#[serde(rename_all(serialize = "kebab-case", deserialize = "kebab-case"))]
+pub struct Config {
+    user_settings: UserSettings,
+}
 
 pub struct State {
     pub config: Config,
