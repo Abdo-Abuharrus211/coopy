@@ -8,7 +8,7 @@ use toml::Value;
 pub enum Commands {
     /// Add items to a config array
     Add {
-        /// Array to modify: 'folders' or 'forbidden'
+        /// Array to modify in config file, either 'folders' or 'forbidden'
         kind: String,
         /// String of comma separated values (folder names)
         value: String,
