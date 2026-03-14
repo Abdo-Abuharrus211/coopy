@@ -1,23 +1,33 @@
-use std::fs;
-use crate::{State, CONFIG_FILE};
+use crate::{CONFIG_FILE, State};
 use clap::builder::Str;
 use clap::{Command, Parser, Subcommand};
+use std::fs;
 use toml::Value;
+
+pub enum ConfigArraysFields {
+    Folders,
+    Forbidden,
+}
 
 #[derive(Subcommand, Debug)]
 pub enum Commands {
     /// Add items to a config array
     Add {
-        /// Array to modify in config file, either 'folders' or 'forbidden'
-        kind: String,
-        /// String of comma separated values (folder names)
-        name: String,
+        kind: ConfigArraysFields,
+        /// Vector of strings
+        values: Vec<String>,
     },
     /// Remove items from a config array
-    Rmv { kind: String, name: String },
-    Set { kind: String
-        , name: String },
-    
+    Rmv {
+        kind: ConfigArraysFields,
+        values: Vec<String>,
+    },
+    Set {
+        kind: ConfigArraysFields,
+        path: String,
+    },
+    /// Shows the current config
+    Config,
 }
 
 #[derive(Parser, Debug)]
@@ -47,7 +57,10 @@ impl Args {
         }
 
         match &self.subcommand {
-            Some(Commands::Add { kind, name: value }) => {
+            Some(Commands::Add {
+                kind,
+                values: value,
+            }) => {
                 let folder_names: Vec<String> = Self::split_vals(&value);
                 // State::update_config("add", &kind, &folder_names);
                 // let _ = folder_names.into_iter().map(|f_name| {
@@ -59,7 +72,6 @@ impl Args {
                     "folders" => {
                         // TODO: push to the folders array in config.toml
                         let conf_file = fs::read_to_string(CONFIG_FILE).unwrap();
-                        
                     }
                     "forbidden" => {
                         //...
