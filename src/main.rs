@@ -36,7 +36,11 @@ fn main() -> Result<(), io::Error> {
     });
 
     let mut current_state = State { config: settings };
-    // TODO: the logic for merging which paths (revise this)
+    // TODO: Flesh out the logic for merging which paths (revise this)
+    Args::process(&cl_args, &mut current_state).unwrap_or_else(|err| {
+        eprintln!("Error processing command line arguments: {}", err);
+        exit(1);
+    });
     current_state.load_paths(cl_args.source, cl_args.target);
 
     let formatted_source = current_state.config.user_settings.source.trim().to_string();
