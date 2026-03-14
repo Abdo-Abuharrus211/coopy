@@ -70,7 +70,7 @@ impl Args {
                     "Place holder until I figure out what to print from {}",
                     CONFIG_FILE
                 );
-                OK(())
+                Ok(())
             }
             _ => {
                 return Err(String::from("Unknown command!"));

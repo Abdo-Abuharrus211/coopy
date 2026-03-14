@@ -1,5 +1,5 @@
 use crate::args::ConfigFields;
-use crate::util;
+use crate::{CONFIG_FILE, util};
 use serde::{Deserialize, Serialize};
 use std::path::Path;
 use std::{fs, io};
@@ -100,13 +100,23 @@ impl State {
                         current_config.target = path.to_string();
                     }
                 }
-                _ => {
-                    //TODO: return Err instead and propagate error up
-                    eprintln!("Invalid config field for rmv operation!")
-                }
+                _ => return Err(format!("Invalid config field '{}' operation", operation)),
             },
             _ => {}
         };
+
+        // I can use `?` here instead to map the errors from to_string_pretty but this is better for me personally
+        let new_config = toml::to_string_pretty(current_config);
+        if new_config.is_err() {
+            return Err(new_config.unwrap_err().to_string());
+        }
+        if let Err(e) = fs::write(CONFIG_FILE, new_config.unwrap().as_bytes()) {
+            return Err(format!(
+                "Error writing to config file '{}' with error: {}",
+                CONFIG_FILE, e
+            ));
+        };
+
         Ok(())
     }
 
