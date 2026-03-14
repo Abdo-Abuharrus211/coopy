@@ -55,27 +55,32 @@ impl Args {
         //     println!("Copying to: {}", arg_t);
         //     // ...
         // }
-        match &self.subcommand {
+        let result = match &self.subcommand {
             Some(Commands::Add { kind, values }) => {
-                State::update_config(state,"add", Some(kind), Some(values), None);
+                State::update_config(state, "add", Some(kind), Some(values), None)
             }
             Some(Commands::Rmv { kind, values }) => {
-                State::update_config(state,"rmv", Some(kind), Some(values), None);
+                State::update_config(state, "rmv", Some(kind), Some(values), None)
             }
             Some(Commands::Set { kind, path }) => {
-                State::update_config(state,"set", Some(kind), None, Some(&path));
+                State::update_config(state, "set", Some(kind), None, Some(&path))
             }
             Some(Commands::Config) => {
                 println!(
                     "Place holder until I figure out what to print from {}",
                     CONFIG_FILE
                 );
+                OK(())
             }
             _ => {
                 return Err(String::from("Unknown command!"));
             }
+        };
+
+        if let Err(e) = result {
+            return Err(format!("Error processing command: {}", e));
         }
-        Ok(())
+        result
     }
 
     fn split_vals(vals: &String) -> Vec<String> {
