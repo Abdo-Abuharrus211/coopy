@@ -1,5 +1,5 @@
 use crate::args::ConfigFields;
-use crate::{util};
+use crate::util;
 use serde::{Deserialize, Serialize};
 use std::path::Path;
 use std::{fs, io};
@@ -76,48 +76,22 @@ impl State {
         let current_config = &mut self.config.user_settings;
         match operation {
             "add" => match kind {
-                Some(ConfigFields::Folders) => {
-                    if let Some(values) = values {
-                        values.iter().for_each(|val| {
-                            current_config.folders.push(val.to_string());
-                        })
-                    }
+                Some(ConfigFields::Folders) => add_values(&mut current_config.folders, values),
+                Some(ConfigFields::Forbidden) => {
+                    remove_values(&mut current_config.forbidden, values)
                 }
-                Some(ConfigFields::Forbidden) => {}
                 _ => {
-                    if let Some(values) = values {
-                        values.iter().for_each(|val| {
-                            current_config.forbidden.push(val.to_string());
-                        })
-                    }
+                    eprintln!("Invalid config field for '{}' operation", operation)
                 }
             },
             "rmv" => match kind {
-                Some(ConfigFields::Folders) => {
-                    if let Some(values) = values {
-                        values.iter().for_each(|val| {
-                            if let Some(index) =
-                                current_config.folders.iter().position(|f| f == val)
-                            {
-                                current_config.folders.swap_remove(index);
-                            }
-                        })
-                    }
-                }
+                Some(ConfigFields::Folders) => remove_values(&mut current_config.folders, values),
                 Some(ConfigFields::Forbidden) => {
-                    if let Some(values) = values {
-                        values.iter().for_each(|val| {
-                            if let Some(index) =
-                                current_config.forbidden.iter().position(|f| f == val)
-                            {
-                                current_config.forbidden.swap_remove(index);
-                            }
-                        })
-                    }
+                    remove_values(&mut current_config.forbidden, values)
                 }
                 _ => {
                     //TODO: return Err instead and propagate error up
-                    eprintln!("Invalid config field for rmv operation!")
+                    eprintln!("Invalid config field for '{}' operation!", operation)
                 }
             },
             "set" => match kind {
@@ -165,6 +139,24 @@ impl State {
         // Prompt User for paths if they're not saved in the config file
         else if current.source == "" && current.target == "" {
             self.prompt_user_paths();
+        }
+    }
+}
+
+fn add_values(list: &mut Vec<String>, values: Option<&[String]>) {
+    if let Some(vals) = values {
+        for val in vals {
+            list.push(val.to_string());
+        }
+    }
+}
+
+fn remove_values(list: &mut Vec<String>, values: Option<&[String]>) {
+    if let Some(vals) = values {
+        for val in vals {
+            if let Some(index) = list.iter().position(|f| f == val) {
+                list.swap_remove(index);
+            }
         }
     }
 }
