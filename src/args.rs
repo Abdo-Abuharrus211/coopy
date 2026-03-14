@@ -57,13 +57,13 @@ impl Args {
         // }
         match &self.subcommand {
             Some(Commands::Add { kind, values }) => {
-                state.update_config("add", Some(kind), Some(values), None);
+                State::update_config(state,"add", Some(kind), Some(values), None);
             }
             Some(Commands::Rmv { kind, values }) => {
-                state.update_config("rmv", Some(kind), Some(values), None);
+                State::update_config(state,"rmv", Some(kind), Some(values), None);
             }
             Some(Commands::Set { kind, path }) => {
-                state.update_config("set", Some(kind), None, Some(&path));
+                State::update_config(state,"set", Some(kind), None, Some(&path));
             }
             Some(Commands::Config) => {
                 println!(
