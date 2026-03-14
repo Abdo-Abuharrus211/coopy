@@ -11,10 +11,10 @@ pub enum Commands {
         /// Array to modify in config file, either 'folders' or 'forbidden'
         kind: String,
         /// String of comma separated values (folder names)
-        value: String,
+        name: String,
     },
     /// Remove items from a config array
-    Delete { kind: String, value: String },
+    Rmv { kind: String, name: String },
 }
 
 #[derive(Parser, Debug)]
@@ -44,7 +44,7 @@ impl Args {
         }
 
         match &self.command {
-            Some(Commands::Add { kind, value }) => {
+            Some(Commands::Add { kind, name: value }) => {
                 let folder_names: Vec<String> = Self::split_vals(&value);
                 // State::update_config("add", &kind, &folder_names);
                 // let _ = folder_names.into_iter().map(|f_name| {
@@ -66,7 +66,7 @@ impl Args {
                     }
                 }
             }
-            Some(Commands::Delete { kind, value }) => {
+            Some(Commands::Rmv { kind, name: value }) => {
                 //...
             }
             _ => {
