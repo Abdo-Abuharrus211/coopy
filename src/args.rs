@@ -46,7 +46,7 @@ pub struct Args {
 
 impl Args {
     /// Process the 'add' and 'del' commands and their potential args 'folders' and 'forbidden'
-    pub fn process(&self) -> Result<(), String> {
+    pub fn process(&self, state: &mut State) -> Result<(), String> {
         // TODO: anything with the `source` and `target`?
         // if let Some(arg_s) = &self.source {
         //     // do something
@@ -57,13 +57,13 @@ impl Args {
         // }
         match &self.subcommand {
             Some(Commands::Add { kind, values }) => {
-                State::update_config("add", Some(kind), Some(values), None);
+                state.update_config("add", Some(kind), Some(values), None);
             }
             Some(Commands::Rmv { kind, values }) => {
-                State::update_config("rmv", Some(kind), Some(values), None);
+                state.update_config("rmv", Some(kind), Some(values), None);
             }
             Some(Commands::Set { kind, path }) => {
-                State::update_config("set", Some(kind), None, Some(&path));
+                state.update_config("set", Some(kind), None, Some(&path));
             }
             Some(Commands::Config) => {
                 println!(
