@@ -78,15 +78,16 @@ impl State {
 
     ///  Load paths provided by user or prompt if none exist in the config
     pub fn load_paths(&mut self, input_src: Option<String>, input_tar: Option<String>) {
-        //TODO assign `self.config.user_settings` to variable AND move to util.rs ?
+        //TODO move to util.rs ?
+        let current = &mut self.config.user_settings;
         if let Some(s) = input_src {
-            self.config.user_settings.source = s;
+            current.source = s;
         }
         if let Some(t) = input_tar {
-            self.config.user_settings.target = t;
+            current.target = t;
         }
         // Prompt User for paths if they're not saved in the config file
-        else if self.config.user_settings.source == "" && self.config.user_settings.target == "" {
+        else if current.source == "" && current.target == "" {
             self.prompt_user_paths();
         }
     }
