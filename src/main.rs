@@ -17,26 +17,24 @@ fn main() -> Result<(), io::Error> {
     let command_args: args::Args = read_args();
     if command_args.source.is_some()
         || command_args.target.is_some()
-        || command_args.command.is_some()
+        || command_args.subcommand.is_some()
     {
         command_args.process_args();
     }
 
-    let conf_contents = match fs::read_to_string(CONFIG_FILE) {
-        Ok(c) => c,
-        Err(_) => {
-            eprintln!("Error reading config file: {}", CONFIG_FILE);
-            exit(1);
-        }
-    };
+    let conf_contents = fs::read_to_string(CONFIG_FILE).unwrap_or_else(|err| {
+        eprintln!(
+            "Error reading config file '{}' with error: {}",
+            CONFIG_FILE, err
+        );
+        exit(1);
+    });
+
     // The data's serialized as a Config Struct incl. the UserConf struct for user settings.
-    let settings: Config = match toml::from_str(&conf_contents) {
-        Ok(s) => s,
-        Err(e) => {
-            eprintln!("Error parsing settings from: {}", e);
-            exit(1);
-        }
-    };
+    let settings: Config = toml::from_str(&conf_contents).unwrap_or_else(|err| {
+        eprintln!("Error parsing settings from: {}", err);
+        exit(1);
+    });
 
     let mut current_state = State { config: settings };
     current_state.load_paths(command_args.source, command_args.target);
