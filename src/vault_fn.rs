@@ -72,7 +72,7 @@ impl State {
         kind: Option<&ConfigFields>,
         values: Option<&[String]>,
         path: Option<&str>,
-    ) {
+    ) -> Result<(), String> {
         let current_config = &mut self.config.user_settings;
         match operation {
             "add" => match kind {
@@ -80,19 +80,14 @@ impl State {
                 Some(ConfigFields::Forbidden) => {
                     remove_values(&mut current_config.forbidden, values)
                 }
-                _ => {
-                    eprintln!("Invalid config field for '{}' operation", operation)
-                }
+                _ => return Err(format!("Invalid config field '{}' operation", operation)),
             },
             "rmv" => match kind {
                 Some(ConfigFields::Folders) => remove_values(&mut current_config.folders, values),
                 Some(ConfigFields::Forbidden) => {
                     remove_values(&mut current_config.forbidden, values)
                 }
-                _ => {
-                    //TODO: return Err instead and propagate error up
-                    eprintln!("Invalid config field for '{}' operation!", operation)
-                }
+                _ => return Err(format!("Invalid config field '{}' operation", operation)),
             },
             "set" => match kind {
                 Some(ConfigFields::Source) => {
@@ -112,6 +107,7 @@ impl State {
             },
             _ => {}
         };
+        Ok(())
     }
 
     /// Ask the user to provide Obsidian vault and destination paths
