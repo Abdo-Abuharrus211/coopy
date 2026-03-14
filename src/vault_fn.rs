@@ -1,5 +1,5 @@
 use crate::args::ConfigFields;
-use crate::util;
+use crate::{util};
 use serde::{Deserialize, Serialize};
 use std::path::Path;
 use std::{fs, io};
@@ -39,8 +39,18 @@ impl State {
                 if path.is_dir() {
                     let entry_str = &entry_name;
                     // Check if the directory is clear to proceed - includes parent folders...
-                    if self.config.user_settings.folders.iter().any(|f| f == entry_str)
-                        || !self.config.user_settings.forbidden.iter().any(|f| f == entry_str)
+                    if self
+                        .config
+                        .user_settings
+                        .folders
+                        .iter()
+                        .any(|f| f == entry_str)
+                        || !self
+                            .config
+                            .user_settings
+                            .forbidden
+                            .iter()
+                            .any(|f| f == entry_str)
                     {
                         let sub_dirs = self.traverse_folder(&path, &new_rel_path)?;
                         tar_files.extend(sub_dirs);
@@ -57,14 +67,80 @@ impl State {
     }
 
     pub fn update_config(
+        &mut self,
         operation: &str,
         kind: Option<&ConfigFields>,
         values: Option<&[String]>,
         path: Option<&str>,
     ) {
+        let current_config = &mut self.config.user_settings;
+        match operation {
+            "add" => match kind {
+                Some(ConfigFields::Folders) => {
+                    if let Some(values) = values {
+                        values.iter().for_each(|val| {
+                            current_config.folders.push(val.to_string());
+                        })
+                    }
+                }
+                Some(ConfigFields::Forbidden) => {}
+                _ => {
+                    if let Some(values) = values {
+                        values.iter().for_each(|val| {
+                            current_config.forbidden.push(val.to_string());
+                        })
+                    }
+                }
+            },
+            "rmv" => match kind {
+                Some(ConfigFields::Folders) => {
+                    if let Some(values) = values {
+                        values.iter().for_each(|val| {
+                            if let Some(index) =
+                                current_config.folders.iter().position(|f| f == val)
+                            {
+                                current_config.folders.swap_remove(index);
+                            }
+                        })
+                    }
+                }
+                Some(ConfigFields::Forbidden) => {
+                    if let Some(values) = values {
+                        values.iter().for_each(|val| {
+                            if let Some(index) =
+                                current_config.forbidden.iter().position(|f| f == val)
+                            {
+                                current_config.forbidden.swap_remove(index);
+                            }
+                        })
+                    }
+                }
+                _ => {
+                    //TODO: return Err instead and propagate error up
+                    eprintln!("Invalid config field for rmv operation!")
+                }
+            },
+            "set" => match kind {
+                Some(ConfigFields::Source) => {
+                    if let Some(path) = path {
+                        current_config.source = path.to_string();
+                    }
+                }
+                Some(ConfigFields::Target) => {
+                    if let Some(path) = path {
+                        current_config.target = path.to_string();
+                    }
+                }
+                _ => {
+                    //TODO: return Err instead and propagate error up
+                    eprintln!("Invalid config field for rmv operation!")
+                }
+            },
+            _ => {}
+        };
     }
 
-    /// Ask the user to provide Obsd vault and destination paths
+    /// Ask the user to provide Obsidian vault and destination paths
     fn prompt_user_paths(&mut self) {
         print!("Obsidian vault's (source) path:");
         io::stdin()
