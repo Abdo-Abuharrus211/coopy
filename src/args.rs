@@ -15,20 +15,23 @@ pub enum Commands {
     },
     /// Remove items from a config array
     Rmv { kind: String, name: String },
+    Set { kind: String
+        , name: String },
+    
 }
 
 #[derive(Parser, Debug)]
 #[command(author, about, long_about = None)]
 pub struct Args {
-    /// Path of vault to copy from
-    #[arg(short, long)]
+    /// The first positional argument it the path of vault to copy from
+    #[arg()]
     pub source: Option<String>,
     /// Path to copy to
-    #[arg(short, long)]
+    #[arg()]
     pub target: Option<String>,
 
     #[command(subcommand)]
-    pub command: Option<Commands>,
+    pub subcommand: Option<Commands>,
 }
 
 impl Args {
@@ -43,7 +46,7 @@ impl Args {
             // ...
         }
 
-        match &self.command {
+        match &self.subcommand {
             Some(Commands::Add { kind, name: value }) => {
                 let folder_names: Vec<String> = Self::split_vals(&value);
                 // State::update_config("add", &kind, &folder_names);
