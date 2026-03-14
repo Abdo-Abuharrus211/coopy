@@ -1,8 +1,8 @@
+use crate::args::ConfigFields;
 use crate::util;
 use serde::{Deserialize, Serialize};
 use std::path::Path;
 use std::{fs, io};
-
 
 #[derive(Serialize, Deserialize)]
 pub struct UserSettings {
@@ -56,6 +56,14 @@ impl State {
         Ok(tar_files)
     }
 
+    pub fn update_config(
+        operation: &str,
+        kind: Option<&ConfigFields>,
+        values: Option<&[String]>,
+        path: Option<&str>,
+    ) {
+    }
+
     /// Ask the user to provide Obsd vault and destination paths
     fn prompt_user_paths(&mut self) {
         print!("Obsidian vault's (source) path:");
@@ -70,7 +78,7 @@ impl State {
 
     ///  Load paths provided by user or prompt if none exist in the config
     pub fn load_paths(&mut self, input_src: Option<String>, input_tar: Option<String>) {
-        //TODO shoould name self.config.user_settings. ???
+        //TODO assign `self.config.user_settings` to variable AND move to util.rs ?
         if let Some(s) = input_src {
             self.config.user_settings.source = s;
         }
