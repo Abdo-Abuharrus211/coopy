@@ -1,7 +1,8 @@
 // Copy the notes from the target folder containing the correct front matter tags.
 
-use crate::args::read_args;
+use crate::args::Args;
 use crate::vault_fn::*;
+use clap::Parser;
 use std::path::Path;
 use std::process::exit;
 use std::{fs, io};
@@ -13,14 +14,12 @@ mod vault_fn;
 pub const CONFIG_FILE: &str = "config.toml";
 
 fn main() -> Result<(), io::Error> {
+    //// ARGUMENTS HERE////
+
     // Processing command line args, if any
-    let command_args: args::Args = read_args();
-    if command_args.source.is_some()
-        || command_args.target.is_some()
-        || command_args.subcommand.is_some()
-    {
-        command_args.process_args();
-    }
+    let cl_args = Args::parse();
+
+    //// CONFIG HERE ////
 
     let conf_contents = fs::read_to_string(CONFIG_FILE).unwrap_or_else(|err| {
         eprintln!(
@@ -37,7 +36,8 @@ fn main() -> Result<(), io::Error> {
     });
 
     let mut current_state = State { config: settings };
-    current_state.load_paths(command_args.source, command_args.target);
+    // TODO: the logic for merging which paths (revise this)
+    current_state.load_paths(cl_args.source, cl_args.target);
 
     let formatted_source = current_state.config.user_settings.source.trim().to_string();
     let formatted_target = current_state.config.user_settings.target.trim().to_string();
