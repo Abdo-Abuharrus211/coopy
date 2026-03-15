@@ -120,18 +120,6 @@ impl State {
         Ok(())
     }
 
-    /// Ask the user to provide Obsidian vault and destination paths
-    fn prompt_user_paths(&mut self) {
-        print!("Obsidian vault's (source) path:");
-        io::stdin()
-            .read_line(&mut self.config.user_settings.source)
-            .expect("Error reading source path!");
-        print!("Target path: ");
-        io::stdin()
-            .read_line(&mut self.config.user_settings.target)
-            .expect("Error reading target path!");
-    }
-
     ///  Load paths provided by user or prompt if none exist in the config
     pub fn load_paths(&mut self, input_src: Option<String>, input_tar: Option<String>) {
         //TODO move to util.rs ?
@@ -144,7 +132,7 @@ impl State {
         }
         // Prompt User for paths if they're not saved in the config file
         else if current.source == "" && current.target == "" {
-            self.prompt_user_paths();
+            util::prompt_user_paths(self);
         }
     }
 }

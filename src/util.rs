@@ -1,6 +1,7 @@
+use crate::State;
 use serde::Deserialize;
-use std::fs;
 use std::path::Path;
+use std::{fs, io};
 
 #[derive(Debug, Deserialize)]
 pub struct Frontmatter {
@@ -64,7 +65,7 @@ pub fn parse_obsd_frontmatter(file: &Path) -> Option<Frontmatter> {
     };
     Some(frontmatter)
 }
-/// Sync the files provided to 
+/// Sync the files provided to
 pub fn sync_files(files: &Vec<String>, src: &String, tgt: &String) -> bool {
     let mut success = true;
     for file in files {
@@ -85,4 +86,16 @@ pub fn sync_files(files: &Vec<String>, src: &String, tgt: &String) -> bool {
         };
     }
     success
+}
+
+/// Ask the user to provide Obsidian vault and destination paths
+pub fn prompt_user_paths(state: &mut State) {
+    print!("Obsidian vault's (source) path:");
+    io::stdin()
+        .read_line(&mut state.config.user_settings.source)
+        .expect("Error reading source path!");
+    print!("Target path: ");
+    io::stdin()
+        .read_line(&mut state.config.user_settings.target)
+        .expect("Error reading target path!");
 }
