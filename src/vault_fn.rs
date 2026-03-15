@@ -122,7 +122,6 @@ impl State {
 
     ///  Load paths provided by user or prompt if none exist in the config
     pub fn load_paths(&mut self, input_src: Option<String>, input_tar: Option<String>) {
-        //TODO move to util.rs ?
         let current = &mut self.config.user_settings;
         if let Some(s) = input_src {
             current.source = s;

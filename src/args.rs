@@ -47,7 +47,7 @@ pub struct Args {
 impl Args {
     /// Process the 'add' and 'del' commands and their potential args 'folders' and 'forbidden'
     pub fn process(&self, state: &mut State) -> Result<(), String> {
-        // TODO: anything with the `source` and `target`?
+        // TODO: Do anything with the `source` and `target`?
         // if let Some(arg_s) = &self.source {
         //     // do something
         // }
