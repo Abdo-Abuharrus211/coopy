@@ -1,4 +1,4 @@
-use crate::{util, State};
+use crate::{State, util};
 use serde::Deserialize;
 use std::path::Path;
 use std::{fs, io};
@@ -10,8 +10,6 @@ pub struct Frontmatter {
     // draft: Option<bool>,
     // date: Option<String>,
 }
-
-
 
 /// Run the sync process for the given source, target and configuration
 ///
@@ -29,11 +27,6 @@ pub fn run(current_state: &mut State) -> Result<(), io::Error> {
     }
     Ok(())
 }
-
-
-
-
-
 
 /// Build the relative path for a file.
 ///
@@ -114,12 +107,18 @@ pub fn sync_files(files: &Vec<String>, src: &String, tgt: &String) -> bool {
 
 /// Ask the user to provide Obsidian vault and destination paths
 pub fn prompt_user_paths(state: &mut State) {
+    let mut src_input = String::new();
+    let mut target_input = String::new();
+
     print!("Obsidian vault's (source) path:");
     io::stdin()
-        .read_line(&mut state.config.user_settings.source)
+        .read_line(&mut src_input)
         .expect("Error reading source path!");
     print!("Target path: ");
     io::stdin()
-        .read_line(&mut state.config.user_settings.target)
+        .read_line(&mut target_input)
         .expect("Error reading target path!");
+
+    state.config.user_settings.source = src_input.trim().to_string();
+    state.config.user_settings.target = target_input.trim().to_string();
 }
