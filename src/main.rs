@@ -15,12 +15,8 @@ pub const CONFIG_FILE: &str = "config.toml";
 
 fn main() -> Result<(), io::Error> {
     //// ARGUMENTS HERE////
-
-    // Processing command line args, if any
     let cl_args = Args::parse();
-
     //// CONFIG HERE ////
-
     let conf_contents = fs::read_to_string(CONFIG_FILE).unwrap_or_else(|err| {
         eprintln!(
             "Error reading config file '{}' with error: {}",
@@ -34,29 +30,22 @@ fn main() -> Result<(), io::Error> {
         eprintln!("Error parsing settings from: {}", err);
         exit(1);
     });
-
     let mut current_state = State { config: settings };
+
     // TODO: Flesh out the logic for merging which paths (revise this)
+
+    // Processing command line args, if any
     Args::process(&cl_args, &mut current_state).unwrap_or_else(|err| {
         eprintln!("Error processing command line arguments: {}", err);
         exit(1);
     });
-    current_state.load_paths(cl_args.source, cl_args.target);
-    // 
-    // let formatted_source = current_state.config.user_settings.source.trim().to_string();
-    // let formatted_target = current_state.config.user_settings.target.trim().to_string();
-    // let targeted_files = current_state.traverse_folder(Path::new(&formatted_source), "")?;
-    // println!("Copying {} files...", targeted_files.len());
-    // let success = util::sync_files(&targeted_files, &formatted_source, &formatted_target);
-    // if success {
-    //     println!("Sync completed Successfully!");
-    // } else {
-    //     println!("Sync completed with some failures");
-    // }
-    // Ok(())
+
+    // resolve which paths to use, CLI or config or prompt
+    current_state.resolve_paths(cl_args.source, cl_args.target);
+
     let run_result = util::run(&mut current_state);
-    if let Err(err) = run_result { 
+    if let Err(err) = run_result {
         panic!("Error during sync process: {}", err);
     }
-     Ok(())
+    Ok(())
 }
