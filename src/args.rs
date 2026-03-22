@@ -82,9 +82,4 @@ impl Args {
         }
         result
     }
-
-    fn split_vals(vals: &String) -> Vec<String> {
-        let values: Vec<String> = vals.split(',').map(String::from).collect();
-        values
-    }
 }
