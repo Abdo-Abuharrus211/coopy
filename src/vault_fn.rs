@@ -120,8 +120,10 @@ impl State {
         Ok(())
     }
 
-    ///  Load paths provided by user or prompt if none exist in the config
-    pub fn load_paths(&mut self, input_src: Option<String>, input_tar: Option<String>) {
+    /// /// Resolve the paths for source and target based on the following precedence: CL args > Config file > prompt user input.
+    ///
+    /// If no paths are passed or stored, prompt user input if none exist in the config
+    pub fn resolve_paths(&mut self, input_src: Option<String>, input_tar: Option<String>) {
         let current = &mut self.config.user_settings;
         if let Some(s) = input_src {
             current.source = s;
@@ -130,7 +132,7 @@ impl State {
             current.target = t;
         }
         // Prompt User for paths if they're not saved in the config file
-        else if current.source == "" && current.target == "" {
+        else if current.source.is_empty() && current.target.is_empty() {
             util::prompt_user_paths(self);
         }
     }
