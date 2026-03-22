@@ -42,16 +42,21 @@ fn main() -> Result<(), io::Error> {
         exit(1);
     });
     current_state.load_paths(cl_args.source, cl_args.target);
-
-    let formatted_source = current_state.config.user_settings.source.trim().to_string();
-    let formatted_target = current_state.config.user_settings.target.trim().to_string();
-    let targeted_files = current_state.traverse_folder(Path::new(&formatted_source), "")?;
-    println!("Copying {} files...", targeted_files.len());
-    let success = util::sync_files(&targeted_files, &formatted_source, &formatted_target);
-    if success {
-        println!("Sync completed Successfully!");
-    } else {
-        println!("Sync completed with some failures");
+    // 
+    // let formatted_source = current_state.config.user_settings.source.trim().to_string();
+    // let formatted_target = current_state.config.user_settings.target.trim().to_string();
+    // let targeted_files = current_state.traverse_folder(Path::new(&formatted_source), "")?;
+    // println!("Copying {} files...", targeted_files.len());
+    // let success = util::sync_files(&targeted_files, &formatted_source, &formatted_target);
+    // if success {
+    //     println!("Sync completed Successfully!");
+    // } else {
+    //     println!("Sync completed with some failures");
+    // }
+    // Ok(())
+    let run_result = util::run(&mut current_state);
+    if let Err(err) = run_result { 
+        panic!("Error during sync process: {}", err);
     }
-    Ok(())
+     Ok(())
 }

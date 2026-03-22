@@ -1,4 +1,4 @@
-use crate::State;
+use crate::{util, State};
 use serde::Deserialize;
 use std::path::Path;
 use std::{fs, io};
@@ -10,6 +10,30 @@ pub struct Frontmatter {
     // draft: Option<bool>,
     // date: Option<String>,
 }
+
+
+
+/// Run the sync process for the given source, target and configuration
+///
+/// This is the main function that performs the synchronization between Obsidian vault and target.
+pub fn run(current_state: &mut State) -> Result<(), io::Error> {
+    let formatted_source = current_state.config.user_settings.source.trim().to_string();
+    let formatted_target = current_state.config.user_settings.target.trim().to_string();
+    let targeted_files = current_state.traverse_folder(Path::new(&formatted_source), "")?;
+    println!("Copying {} files...", targeted_files.len());
+    let success = util::sync_files(&targeted_files, &formatted_source, &formatted_target);
+    if success {
+        println!("Sync completed Successfully!");
+    } else {
+        println!("Sync completed with some failures");
+    }
+    Ok(())
+}
+
+
+
+
+
 
 /// Build the relative path for a file.
 ///
