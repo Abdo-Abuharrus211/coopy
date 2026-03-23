@@ -1,4 +1,4 @@
-use crate::{CONFIG_FILE, State};
+use crate::{CONFIG_FILE, State, util};
 use clap::{Parser, Subcommand};
 
 #[derive(clap::ValueEnum, Debug, Clone)]
@@ -47,14 +47,17 @@ pub struct Args {
 impl Args {
     /// Process the 'add' and 'del' commands and their potential args 'folders' and 'forbidden'
     pub fn process(&self, state: &mut State) -> Result<(), String> {
-        // TODO: Do anything with the `source` and `target`?
-        // if let Some(arg_s) = &self.source {
-        //     // do something
-        // }
-        // if let Some(arg_t) = &self.target {
-        //     println!("Copying to: {}", arg_t);
-        //     // ...
-        // }
+        if self.source.is_some() || self.target.is_some() {
+            state.resolve_paths(self.source.clone(), self.target.clone());
+            let result = util::run(state);
+            if let Err(e) = result {
+                return Err(format!("Error during sync process: {}", e));
+            } else{
+                return Ok(());
+            }
+        }
+
+        // No paths provided, processing subcommands here
         let result = match &self.subcommand {
             Some(Commands::Add { kind, values }) => {
                 State::update_config(state, "add", Some(kind), Some(values), None)
@@ -72,6 +75,7 @@ impl Args {
                 );
                 Ok(())
             }
+
             _ => {
                 return Err(String::from("Unknown command!"));
             }

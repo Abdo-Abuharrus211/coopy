@@ -3,7 +3,6 @@
 use crate::args::Args;
 use crate::vault_fn::*;
 use clap::Parser;
-use std::path::Path;
 use std::process::exit;
 use std::{fs, io};
 
