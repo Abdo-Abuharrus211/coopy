@@ -49,7 +49,7 @@ fn main() -> Result<(), io::Error> {
                 panic!("Error during sync process: {}", err);
             }
         }
-        Action::EditConfig => {
+        Action::ConfigUpdate => {
             // TODO: refactor/updt when implement proper config print
             println!("Config updated successfully.");
         }

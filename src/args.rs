@@ -4,9 +4,10 @@ use clap::{Parser, Subcommand};
 
 
 /// Defines the possible actions when processing command line arguments.
-pub enum Action{
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Action {
     Sync,
-    EditConfig,
+    ConfigUpdate,
 }
 
 #[derive(clap::ValueEnum, Debug, Clone)]
@@ -86,6 +87,6 @@ impl Args {
         if let Err(e) = result {
             return Err(format!("Error processing command: {}", e));
         }
-        Ok(Action::EditConfig)
+        Ok(Action::ConfigUpdate)
     }
 }
