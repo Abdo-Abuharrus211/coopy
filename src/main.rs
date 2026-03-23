@@ -1,6 +1,7 @@
 // Copy the notes from the target folder containing the correct front matter tags.
 
 use crate::args::Args;
+use crate::args::Action;
 use crate::vault_fn::*;
 use clap::Parser;
 use std::process::exit;
@@ -34,17 +35,26 @@ fn main() -> Result<(), io::Error> {
     // TODO: Flesh out the logic for merging which paths (revise this)
 
     // Processing command line args, if any
-    Args::process(&cl_args, &mut current_state).unwrap_or_else(|err| {
+    let action = Args::process(&cl_args, &mut current_state).unwrap_or_else(|err| {
         eprintln!("Error processing command line arguments: {}", err);
         exit(1);
     });
 
+    match action {
+        Action::Sync => {
+            let run_result = util::run(&mut current_state);
+            if let Err(err) = run_result {
+                panic!("Error during sync process: {}", err);
+            }
+        }
+        Action::EditConfig => {
+            // TODO: refactor/updt when implement proper config print
+            println!("Config updated successfully.");
+        }
+    }
+
     // resolve which paths to use, CLI or config or prompt
     current_state.resolve_paths(cl_args.source, cl_args.target);
 
-    let run_result = util::run(&mut current_state);
-    if let Err(err) = run_result {
-        panic!("Error during sync process: {}", err);
-    }
     Ok(())
 }
