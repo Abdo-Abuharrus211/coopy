@@ -1,5 +1,13 @@
-use crate::{CONFIG_FILE, State, util};
+use crate::{CONFIG_FILE, State};
 use clap::{Parser, Subcommand};
+
+
+
+/// Defines the possible actions when processing command line arguments.
+pub enum Action{
+    Sync,
+    EditConfig,
+}
 
 #[derive(clap::ValueEnum, Debug, Clone)]
 pub enum ConfigFields {
@@ -49,15 +57,10 @@ impl Args {
     ///
     /// If source or target paths are provided, implicitly resolve the paths and run the sync process.
     /// Otherwise, process subcommands accordingly.
-    pub fn process(&self, state: &mut State) -> Result<(), String> {
+    pub fn process(&self, state: &mut State) -> Result<Action, String> {
         if self.source.is_some() || self.target.is_some() {
             state.resolve_paths(self.source.clone(), self.target.clone());
-            let result = util::run(state);
-            if let Err(e) = result {
-                return Err(format!("Error during sync process: {}", e));
-            } else {
-                return Ok(());
-            }
+            return Ok(Action::Sync);
         }
         // No paths provided, processing subcommands here
         let result = match &self.subcommand {
@@ -84,6 +87,6 @@ impl Args {
         if let Err(e) = result {
             return Err(format!("Error processing command: {}", e));
         }
-        result
+        Ok(Action::EditConfig)
     }
 }
