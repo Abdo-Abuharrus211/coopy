@@ -45,18 +45,20 @@ pub struct Args {
 }
 
 impl Args {
-    /// Process the 'add' and 'del' commands and their potential args 'folders' and 'forbidden'
+    /// Process the CL arguments to sync directories or process subcommands for config.
+    ///
+    /// If source or target paths are provided, implicitly resolve the paths and run the sync process.
+    /// Otherwise, process subcommands accordingly.
     pub fn process(&self, state: &mut State) -> Result<(), String> {
         if self.source.is_some() || self.target.is_some() {
             state.resolve_paths(self.source.clone(), self.target.clone());
             let result = util::run(state);
             if let Err(e) = result {
                 return Err(format!("Error during sync process: {}", e));
-            } else{
+            } else {
                 return Ok(());
             }
         }
-
         // No paths provided, processing subcommands here
         let result = match &self.subcommand {
             Some(Commands::Add { kind, values }) => {
@@ -75,12 +77,10 @@ impl Args {
                 );
                 Ok(())
             }
-
             _ => {
                 return Err(String::from("Unknown command!"));
             }
         };
-
         if let Err(e) = result {
             return Err(format!("Error processing command: {}", e));
         }
