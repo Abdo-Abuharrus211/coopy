@@ -59,7 +59,6 @@ impl Args {
     /// Otherwise, process subcommands accordingly.
     pub fn process(&self, state: &mut State) -> Result<Action, String> {
         if self.source.is_some() || self.target.is_some() {
-            state.resolve_paths(self.source.clone(), self.target.clone());
             return Ok(Action::Sync);
         }
         // No paths provided, processing subcommands here

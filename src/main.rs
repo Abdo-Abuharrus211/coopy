@@ -42,6 +42,8 @@ fn main() -> Result<(), io::Error> {
 
     match action {
         Action::Sync => {
+            // resolve which paths to use, CLI or config or prompt
+            current_state.resolve_paths(cl_args.source, cl_args.target);
             let run_result = util::run(&mut current_state);
             if let Err(err) = run_result {
                 panic!("Error during sync process: {}", err);
@@ -53,8 +55,6 @@ fn main() -> Result<(), io::Error> {
         }
     }
 
-    // resolve which paths to use, CLI or config or prompt
-    current_state.resolve_paths(cl_args.source, cl_args.target);
 
     Ok(())
 }
