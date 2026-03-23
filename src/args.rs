@@ -80,6 +80,8 @@ impl Args {
                 );
                 Ok(())
             }
+            // TODO: should this also just be default sync when no CL args or subcommands?
+            // None =>{}
             _ => {
                 return Err(String::from("Unknown command!"));
             }
