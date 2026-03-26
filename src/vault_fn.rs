@@ -2,8 +2,9 @@ use crate::args::ConfigFields;
 use crate::{CONFIG_FILE, util};
 use serde::{Deserialize, Serialize};
 use std::path::Path;
+use std::process::exit;
 use std::{fs, io};
-
+use toml::Table;
 #[derive(Serialize, Deserialize)]
 pub struct UserSettings {
     pub(crate) source: String,
@@ -73,49 +74,74 @@ impl State {
         values: Option<&[String]>,
         path: Option<&str>,
     ) -> Result<(), String> {
-        let current_config = &mut self.config.user_settings;
+        let current_config_state = &mut self.config.user_settings;
+        // loading the current TOML config file's contents
+        let toml_contents: String = fs::read_to_string(CONFIG_FILE).unwrap_or_else(|err| {
+            eprintln!(
+                "Error reading config file '{}' with error: {}",
+                CONFIG_FILE, err
+            );
+            exit(1);
+        });
+        let mut toml_config = toml_contents.parse::<Table>().unwrap_or_else(|err| {
+            eprintln!("Error parsing settings from: {}", err);
+            exit(1);
+        });
+
         match operation {
             "add" => match kind {
-                Some(ConfigFields::Folders) => add_values(&mut current_config.folders, values),
+                Some(ConfigFields::Folders) => {
+                    add_values(&mut current_config_state.folders, values);
+                    toml_config["user-settings"]["folders"] =
+                        current_config_state.folders.clone().into();
+                }
                 Some(ConfigFields::Forbidden) => {
-                    remove_values(&mut current_config.forbidden, values)
+                    add_values(&mut current_config_state.forbidden, values);
+                    toml_config["user-settings"]["forbidden"] =
+                        current_config_state.forbidden.clone().into();
                 }
                 _ => return Err(format!("Invalid config field '{}' operation", operation)),
             },
             "rmv" => match kind {
-                Some(ConfigFields::Folders) => remove_values(&mut current_config.folders, values),
+                Some(ConfigFields::Folders) => {
+                    remove_values(&mut current_config_state.folders, values);
+                    toml_config["user-settings"]["folders"] =
+                        current_config_state.folders.clone().into();
+                }
                 Some(ConfigFields::Forbidden) => {
-                    remove_values(&mut current_config.forbidden, values)
+                    remove_values(&mut current_config_state.forbidden, values);
+                    toml_config["user-settings"]["forbidden"] =
+                        current_config_state.forbidden.clone().into();
                 }
                 _ => return Err(format!("Invalid config field '{}' operation", operation)),
             },
             "set" => match kind {
                 Some(ConfigFields::Source) => {
                     if let Some(path) = path {
-                        current_config.source = path.to_string();
+                        current_config_state.source = path.to_string();
                     }
+                    toml_config["user-settings"]["source"] =
+                        current_config_state.source.clone().into();
                 }
                 Some(ConfigFields::Target) => {
                     if let Some(path) = path {
-                        current_config.target = path.to_string();
+                        current_config_state.target = path.to_string();
                     }
+                    toml_config["user-settings"]["target"] =
+                        current_config_state.target.clone().into();
                 }
                 _ => return Err(format!("Invalid config field '{}' operation", operation)),
             },
             _ => {}
         };
 
-        // I can use `?` here instead to map the errors from to_string_pretty but this is better for me personally
-        let new_config = toml::to_string_pretty(current_config);
-        if new_config.is_err() {
-            return Err(new_config.unwrap_err().to_string());
-        }
-        if let Err(e) = fs::write(CONFIG_FILE, new_config.unwrap().as_bytes()) {
-            return Err(format!(
+        fs::write(CONFIG_FILE, toml_config.to_string()).unwrap_or_else(|err| {
+            eprintln!(
                 "Error writing to config file '{}' with error: {}",
-                CONFIG_FILE, e
-            ));
-        };
+                CONFIG_FILE, err
+            );
+            exit(1);
+        });
 
         Ok(())
     }

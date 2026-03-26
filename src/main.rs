@@ -1,7 +1,7 @@
 // Copy the notes from the target folder containing the correct front matter tags.
 
-use crate::args::Args;
 use crate::args::Action;
+use crate::args::Args;
 use crate::vault_fn::*;
 use clap::Parser;
 use std::process::exit;
@@ -30,6 +30,8 @@ fn main() -> Result<(), io::Error> {
         eprintln!("Error parsing settings from: {}", err);
         exit(1);
     });
+
+    // The current, globally mut used, state of the program (including the config & settings)
     let mut current_state = State { config: settings };
 
     // TODO: Flesh out the logic for merging which paths (revise this)
@@ -54,7 +56,6 @@ fn main() -> Result<(), io::Error> {
             println!("Config updated successfully.");
         }
     }
-
 
     Ok(())
 }
