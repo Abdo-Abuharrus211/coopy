@@ -1,8 +1,6 @@
 use crate::{CONFIG_FILE, State};
 use clap::{Parser, Subcommand};
 
-
-
 /// Defines the possible actions when processing command line arguments.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Action {
@@ -80,11 +78,7 @@ impl Args {
                 );
                 Ok(())
             }
-            // TODO: should this also just be default sync when no CL args or subcommands?
-            // None =>{}
-            _ => {
-                return Err(String::from("Unknown command!"));
-            }
+            None => return Ok(Action::Sync),
         };
         if let Err(e) = result {
             return Err(format!("Error processing command: {}", e));
