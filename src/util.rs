@@ -1,4 +1,4 @@
-use crate::{State, util};
+use crate::{State};
 use serde::Deserialize;
 use std::path::Path;
 use std::{fs, io};
@@ -19,7 +19,7 @@ pub fn run(current_state: &mut State) -> Result<(), io::Error> {
     let formatted_target = current_state.config.user_settings.target.trim().to_string();
     let targeted_files = current_state.traverse_folder(Path::new(&formatted_source), "")?;
     println!("Copying {} files...", targeted_files.len());
-    let success = util::sync_files(&targeted_files, &formatted_source, &formatted_target);
+    let success = sync_files(&targeted_files, &formatted_source, &formatted_target);
     if success {
         println!("Sync completed Successfully!");
     } else {
