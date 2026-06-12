@@ -69,7 +69,7 @@ impl State {
     }
 }
 
-const CONFIG_FILE: &str = "config.toml";
+const CONFIG_FILE: &str = "./config.toml";
 
 fn main() -> Result<(), io::Error> {
     // TODO: Clean this up later
