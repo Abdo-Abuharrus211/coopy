@@ -9,10 +9,13 @@ Building a tool to sync my blog content with my Obsidian vault. Selectively choo
  - [X] Check if ready for publishing
  - [X] Copy the files to the destination directory
  - [X] Only copy files in specific folders
- - [ ] Complete config implementation
- - [X] Add command line arguments and flags
- - [ ] Write the new paths to the config file if user flags to save
- - [ ] Looping and Error handling for the path selection process
  - [X] Move User I/O to separate function
+ - [X] Add command line arguments and flags
+ - [ ] Complete config implementation
+ - [ ] Update NOT Overwrite the `config.toml` file
+ - [ ] Write the new paths to the config file if user flags to save
+ - [ ] User message when config is updated - in `main.rs`
+ - [ ] Write tests suite
+ - [ ] Looping and Error handling for the path selection process
  - [ ] Add function doc strings? Is this idiomatic?
  - [ ] Refactor and modularize the functions
