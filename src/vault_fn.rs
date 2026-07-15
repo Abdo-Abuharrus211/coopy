@@ -74,7 +74,7 @@ impl State {
         values: Option<&[String]>,
         path: Option<&str>,
     ) -> Result<(), String> {
-        let current_config_state = &mut self.config.user_settings;
+        let current_user_settings = &mut self.config.user_settings;
         // loading the current TOML config file's contents
         let toml_contents: String = fs::read_to_string(CONFIG_FILE).unwrap_or_else(|err| {
             eprintln!(
@@ -83,7 +83,7 @@ impl State {
             );
             exit(1);
         });
-        let mut toml_config = toml_contents.parse::<Table>().unwrap_or_else(|err| {
+        let mut config_file = toml_contents.parse::<Table>().unwrap_or_else(|err| {
             eprintln!("Error parsing settings from: {}", err);
             exit(1);
         });
@@ -91,51 +91,51 @@ impl State {
         match operation {
             "add" => match kind {
                 Some(ConfigFields::Folders) => {
-                    add_values(&mut current_config_state.folders, values);
-                    toml_config["user-settings"]["folders"] =
-                        current_config_state.folders.clone().into();
+                    add_values(&mut current_user_settings.folders, values);
+                    config_file["user-settings"]["folders"] =
+                        current_user_settings.folders.clone().into();
                 }
                 Some(ConfigFields::Forbidden) => {
-                    add_values(&mut current_config_state.forbidden, values);
-                    toml_config["user-settings"]["forbidden"] =
-                        current_config_state.forbidden.clone().into();
+                    add_values(&mut current_user_settings.forbidden, values);
+                    config_file["user-settings"]["forbidden"] =
+                        current_user_settings.forbidden.clone().into();
                 }
                 _ => return Err(format!("Invalid config field '{}' operation", operation)),
             },
             "rmv" => match kind {
                 Some(ConfigFields::Folders) => {
-                    remove_values(&mut current_config_state.folders, values);
-                    toml_config["user-settings"]["folders"] =
-                        current_config_state.folders.clone().into();
+                    remove_values(&mut current_user_settings.folders, values);
+                    config_file["user-settings"]["folders"] =
+                        current_user_settings.folders.clone().into();
                 }
                 Some(ConfigFields::Forbidden) => {
-                    remove_values(&mut current_config_state.forbidden, values);
-                    toml_config["user-settings"]["forbidden"] =
-                        current_config_state.forbidden.clone().into();
+                    remove_values(&mut current_user_settings.forbidden, values);
+                    config_file["user-settings"]["forbidden"] =
+                        current_user_settings.forbidden.clone().into();
                 }
                 _ => return Err(format!("Invalid config field '{}' operation", operation)),
             },
             "set" => match kind {
                 Some(ConfigFields::Source) => {
                     if let Some(path) = path {
-                        current_config_state.source = path.to_string();
+                        current_user_settings.source = path.to_string();
                     }
-                    toml_config["user-settings"]["source"] =
-                        current_config_state.source.clone().into();
+                    config_file["user-settings"]["source"] =
+                        current_user_settings.source.clone().into();
                 }
                 Some(ConfigFields::Target) => {
                     if let Some(path) = path {
-                        current_config_state.target = path.to_string();
+                        current_user_settings.target = path.to_string();
                     }
-                    toml_config["user-settings"]["target"] =
-                        current_config_state.target.clone().into();
+                    config_file["user-settings"]["target"] =
+                        current_user_settings.target.clone().into();
                 }
                 _ => return Err(format!("Invalid config field '{}' operation", operation)),
             },
             _ => {}
         };
 
-        fs::write(CONFIG_FILE, toml_config.to_string()).unwrap_or_else(|err| {
+        fs::write(CONFIG_FILE, config_file.to_string()).unwrap_or_else(|err| {
             eprintln!(
                 "Error writing to config file '{}' with error: {}",
                 CONFIG_FILE, err
@@ -164,6 +164,7 @@ impl State {
     }
 }
 
+// helper fn add/rem from string vector
 fn add_values(list: &mut Vec<String>, values: Option<&[String]>) {
     if let Some(vals) = values {
         for val in vals {
