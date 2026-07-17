@@ -1,15 +1,16 @@
 // Copy the notes from the target folder containing the correct front matter tags.
 
-use crate::args::Action;
-use crate::args::Args;
-use crate::vault_fn::*;
+use crate::cli::Action;
+use crate::cli::Args;
+use crate::config::*;
 use clap::Parser;
 use std::process::exit;
 use std::{fs, io};
 
-mod args;
-mod util;
-mod vault_fn;
+mod cli;
+mod config;
+mod sync;
+mod obsidian;
 
 pub const CONFIG_FILE: &str = "config.toml";
 
@@ -46,7 +47,7 @@ fn main() -> Result<(), io::Error> {
         Action::Sync => {
             // resolve which paths to use, CLI or config or prompt
             current_state.resolve_paths(cl_args.source, cl_args.target);
-            let run_result = util::run(&mut current_state);
+            let run_result = sync::run(&mut current_state);
             if let Err(err) = run_result {
                 panic!("Error during sync process: {}", err);
             }
