@@ -1,5 +1,7 @@
-use crate::{CONFIG_FILE, State};
+use config::CONFIG_FILE;
+use config::State;
 use clap::{Parser, Subcommand};
+use crate::config;
 
 /// Defines the possible actions when processing command line arguments.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
