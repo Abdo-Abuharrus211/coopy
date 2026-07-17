@@ -1,9 +1,11 @@
 use crate::cli::ConfigFields;
-use crate::{CONFIG_FILE};
 use serde::{Deserialize, Serialize};
 use std::process::exit;
 use std::{fs, io};
 use toml::Table;
+
+pub const CONFIG_FILE: &str = "config.toml";
+
 #[derive(Serialize, Deserialize)]
 pub struct UserSettings {
     pub(crate) source: String,

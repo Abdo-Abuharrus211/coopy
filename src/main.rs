@@ -9,10 +9,9 @@ use std::{fs, io};
 
 mod cli;
 mod config;
-mod sync;
 mod obsidian;
+mod sync;
 
-pub const CONFIG_FILE: &str = "config.toml";
 
 fn main() -> Result<(), io::Error> {
     //// ARGUMENTS HERE////
