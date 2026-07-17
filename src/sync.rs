@@ -3,7 +3,6 @@ use std::{fs, io};
 
 use crate::config::State;
 use crate::obsidian;
-use crate::sync;
 
 /// Run the sync process for the given source, target and configuration
 ///
