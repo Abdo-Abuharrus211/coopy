@@ -7,10 +7,23 @@ use crate::obsidian;
 /// Run the sync process for the given source, target and configuration
 ///
 /// This is the main function that performs the synchronization between Obsidian vault and target.
-pub fn run(current_state: &mut State) -> Result<(), io::Error> {
+pub fn run(current_state: &mut State) -> Result<(), String> {
     let formatted_source = current_state.config.user_settings.source.trim().to_string();
     let formatted_target = current_state.config.user_settings.target.trim().to_string();
-    let targeted_files = traverse_vault(&current_state, Path::new(&formatted_source), "")?;
+
+    if !Path::new(&formatted_source).exists() {
+        return Err(format!(
+            "Source directory '{}' doesn't Exist!",
+            &formatted_source
+        ));
+    } else if !Path::new(&formatted_target).exists() {
+        return Err(format!(
+            "Target directory '{}' doesn't Exist!",
+            &formatted_target
+        ));
+    }
+
+    let targeted_files = traverse_vault(&current_state, Path::new(&formatted_source), "")?:
     println!("Copying {} files...", targeted_files.len());
     let success = sync_files(&targeted_files, &formatted_source, &formatted_target);
     if success {
