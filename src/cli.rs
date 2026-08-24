@@ -75,7 +75,7 @@ impl Args {
             }
             Some(Commands::Config) => {
                 println!(
-                    "Place holder until I figure out what to print from {}",
+                    "Place holder until I figure out what to print from '{}'",
                     CONFIG_FILE
                 );
                 Ok(())
