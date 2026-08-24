@@ -23,7 +23,13 @@ pub fn run(current_state: &mut State) -> Result<(), String> {
         ));
     }
 
-    let targeted_files = traverse_vault(&current_state, Path::new(&formatted_source), "")?:
+    let targeted_files =
+        traverse_vault(&current_state, Path::new(&formatted_source), "").map_err(|e| {
+            format!(
+                "Failed to traverse vault '{}' due to '{}'",
+                &formatted_source, e
+            )
+        })?;
     println!("Copying {} files...", targeted_files.len());
     let success = sync_files(&targeted_files, &formatted_source, &formatted_target);
     if success {
