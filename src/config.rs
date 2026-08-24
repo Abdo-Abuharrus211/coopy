@@ -121,6 +121,14 @@ impl State {
             prompt_user_paths(self);
         }
     }
+
+
+    // TODO: Format and print the current saved Config
+    pub fn config_to_string(&mut self){
+        // format the entire configuration of the state into a multi-line string
+        // tree like structure? recursive?
+        let current = &self.config.user_settings;
+    }
 }
 
 // helper fn add/rem from string vector
