@@ -1,6 +1,6 @@
 use serde::Deserialize;
+use std::fs;
 use std::path::Path;
-use std::{fs};
 
 #[derive(Debug, Deserialize)]
 pub struct Frontmatter {
@@ -51,4 +51,39 @@ pub fn check_file(file: &Path) -> bool {
     } else {
         false
     }
+}
+
+pub fn validate_vault(vault_path: &Path) -> Result<bool, String> {
+    if !vault_path.exists() {
+        return Err(format!(
+            "The specified vault path '{}' does not exist.",
+            vault_path.display()
+        ));
+    }
+    if !vault_path.is_dir() {
+        return Err(format!(
+            "The specified vault path '{}' is not a directory.",
+            vault_path.display()
+        ));
+    }
+    let contents = fs::read_dir(vault_path);
+
+    let files = match contents {
+        Ok(c) => c,
+        Err(e) => {
+            return Err(format!(
+                "Error parsing directory '{} for vault validation: {}",
+                vault_path.display(),
+                e
+            ));
+        }
+    };
+
+    for c in files {
+        if c.unwrap().file_name() == ".obsidian" {
+            return Ok(true);
+        }
+    }
+
+    Ok(false)
 }
