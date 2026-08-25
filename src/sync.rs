@@ -1,8 +1,10 @@
 use std::path::Path;
+use std::process::exit;
 use std::{fs, io};
 
 use crate::config::State;
 use crate::obsidian;
+use crate::obsidian::validate_vault;
 
 /// Run the sync process for the given source, target and configuration
 ///
@@ -10,6 +12,19 @@ use crate::obsidian;
 pub fn run(current_state: &mut State) -> Result<(), String> {
     let formatted_source = current_state.config.user_settings.source.trim().to_string();
     let formatted_target = current_state.config.user_settings.target.trim().to_string();
+
+    let is_vault = validate_vault(Path::new(&formatted_source)).unwrap_or_else(|e| {
+        eprintln!("{}", e);
+        exit(1)
+    });
+
+    if !is_vault {
+        eprintln!(
+            "Source directory '{}' is not a valid Obsidian vault. Aborting!",
+            formatted_source
+        );
+        exit(1);
+    }
 
     if !Path::new(&formatted_source).exists() {
         return Err(format!(
