@@ -53,37 +53,19 @@ pub fn check_file(file: &Path) -> bool {
     }
 }
 
-pub fn validate_vault(vault_path: &Path) -> Result<bool, String> {
-    if !vault_path.exists() {
-        return Err(format!(
-            "The specified vault path '{}' does not exist.",
-            vault_path.display()
-        ));
-    }
+pub fn validate_vault(vault_path: &Path) -> Result<(), String> {
     if !vault_path.is_dir() {
         return Err(format!(
-            "The specified vault path '{}' is not a directory.",
+            "The directory '{}' doesn't exist.",
             vault_path.display()
         ));
     }
-    let contents = fs::read_dir(vault_path);
 
-    let files = match contents {
-        Ok(c) => c,
-        Err(e) => {
-            return Err(format!(
-                "Error parsing directory '{} for vault validation: {}",
-                vault_path.display(),
-                e
-            ));
-        }
-    };
-
-    for c in files {
-        if c.unwrap().file_name() == ".obsidian" {
-            return Ok(true);
-        }
+    if !vault_path.join(".obsidian").exists() {
+        return Err(format!(
+            "The directory '{}' is not a valid Obsidian vault. No '.obsidian' detected.",
+            vault_path.display()
+        ));
     }
-
-    Ok(false)
+    Ok(())
 }
