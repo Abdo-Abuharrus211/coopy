@@ -12,7 +12,6 @@ mod config;
 mod obsidian;
 mod sync;
 
-
 fn main() -> Result<(), io::Error> {
     //// ARGUMENTS HERE////
     let cl_args = Args::parse();
@@ -48,7 +47,8 @@ fn main() -> Result<(), io::Error> {
             current_state.resolve_paths(cl_args.source, cl_args.target);
             let run_result = sync::run(&mut current_state);
             if let Err(err) = run_result {
-                panic!("Error during sync process: {}", err);
+                eprintln!("Error during sync process: {}", err);
+                exit(1);
             }
         }
         Action::ConfigUpdate => {
