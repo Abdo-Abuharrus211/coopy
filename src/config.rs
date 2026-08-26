@@ -127,7 +127,12 @@ impl State {
     pub fn config_to_string(&mut self){
         // format the entire configuration of the state into a multi-line string
         // tree like structure? recursive?
-        let current = &self.config.user_settings;
+        let current = &self.config;
+        println!("____COOPY CONFIGURATION____");
+        // for group in current {
+        //     println!("{group}");
+        // }
+
     }
 }
 
@@ -135,7 +140,9 @@ impl State {
 fn add_values(list: &mut Vec<String>, values: Option<&[String]>) {
     if let Some(vals) = values {
         for val in vals {
-            list.push(val.to_string());
+            if !list.contains(val){
+                list.push(val.to_string());
+            }
         }
     }
 }
