@@ -149,11 +149,7 @@ fn add_values(list: &mut Vec<String>, values: Option<&[String]>) {
 
 fn remove_values(list: &mut Vec<String>, values: Option<&[String]>) {
     if let Some(vals) = values {
-        for val in vals {
-            if let Some(index) = list.iter().position(|f| f == val) {
-                list.swap_remove(index);
-            }
-        }
+        list.retain(|v| !vals.contains(v));
     }
 }
 
