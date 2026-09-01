@@ -26,6 +26,12 @@ pub enum Commands {
         source: Option<String>,
         /// path to destination
         target: Option<String>,
+        /// Show what would be copied without doing it
+        #[arg(long, action = clap::ArgAction::SetTrue)]
+        dry_run: bool,
+        /// Print verbose output
+        #[arg(long, short, action = clap::ArgAction::SetTrue)]
+        verbose: bool,
     },
     /// Add items to a config array
     Add {
