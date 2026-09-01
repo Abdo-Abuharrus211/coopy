@@ -1,4 +1,3 @@
-use config::CONFIG_FILE;
 use config::State;
 use clap::{Parser, Subcommand};
 use crate::config;
@@ -74,10 +73,7 @@ impl Args {
                 State::update_config(state, "set", Some(kind), None, Some(&path))
             }
             Some(Commands::Config) => {
-                println!(
-                    "Place holder until I figure out what to print from '{}'",
-                    CONFIG_FILE
-                );
+                state.config_to_string();
                 Ok(())
             }
             None => return Ok(Action::Sync),
