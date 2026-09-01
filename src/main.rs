@@ -36,15 +36,15 @@ fn main() -> Result<(), io::Error> {
     // TODO: Flesh out the logic for merging which paths (revise this)
 
     // Processing command line args, if any
-    let action = Args::process(&cl_args, &mut current_state).unwrap_or_else(|err| {
+    let processed = Args::process(&cl_args, &mut current_state).unwrap_or_else(|err| {
         eprintln!("Error processing command line arguments: {}", err);
         exit(1);
     });
 
-    match action {
+    match processed.action {
         Action::Sync => {
             // resolve which paths to use, CLI or config or prompt
-            current_state.resolve_paths(cl_args.source, cl_args.target);
+            current_state.resolve_paths(processed.source, processed.target);
             let run_result = sync::run(&mut current_state);
             if let Err(err) = run_result {
                 eprintln!("Error during sync process: {}", err);
