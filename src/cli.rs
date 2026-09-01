@@ -1,11 +1,12 @@
 use config::State;
-use clap::{Parser, Subcommand};
+use clap::{arg, Parser, Subcommand};
 use crate::config;
 
-/// Defines the possible actions when processing command line arguments.
+/// Defines the possible actions Coopy can do.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Action {
     Sync,
+    ConfigUpdate,
     ShowConfig,
 }
 
@@ -19,6 +20,13 @@ pub enum ConfigFields {
 
 #[derive(Subcommand, Debug)]
 pub enum Commands {
+    /// Sync contents from Obsidian vault to target folder
+    Sync{
+        /// path to obsidian vault
+        source: Option<String>,
+        /// path to destination
+        target: Option<String>,
+    },
     /// Add items to a config array
     Add {
         kind: ConfigFields,
@@ -61,8 +69,11 @@ impl Args {
         if self.source.is_some() || self.target.is_some() {
             return Ok(Action::Sync);
         }
-        // No paths provided, processing subcommands here
+        // Processing commands here, including explicit sync command
         let result = match &self.subcommand {
+            Some(Commands::Sync {source, target}) =>{
+                return Ok(Action::Sync);
+            }
             Some(Commands::Add { kind, values }) => {
                 State::update_config(state, "add", Some(kind), Some(values), None)
             }
@@ -80,6 +91,6 @@ impl Args {
         if let Err(e) = result {
             return Err(format!("Error processing command: {}", e));
         }
-        Ok(Action::ShowConfig)
+        Ok(Action::ConfigUpdate)
     }
 }
