@@ -18,10 +18,8 @@ pub fn parse_obsidian_frontmatter(file: &Path) -> Option<Frontmatter> {
         Err(_) => return None,
     };
     // Check if not YAML frontmatter
-    if let Some(line) = md_content.lines().next() {
-        if line.trim() != "---" {
-            return None;
-        }
+    if let Some(line) = md_content.lines().next() && line.trim() != "---" {
+        return None;
     }
     let mut matter = String::new();
     let mut first_line = true;
@@ -33,7 +31,7 @@ pub fn parse_obsidian_frontmatter(file: &Path) -> Option<Frontmatter> {
             break;
         }
         matter.push_str(line);
-        matter.push_str("\n");
+        matter.push('\n');
     }
     let frontmatter: Frontmatter = match serde_yaml::from_str(&matter) {
         Ok(fm) => fm,
@@ -46,7 +44,7 @@ pub fn parse_obsidian_frontmatter(file: &Path) -> Option<Frontmatter> {
 ///
 /// Each Obsidian file has a property `publish` which is a boolean.
 pub fn check_file(file: &Path) -> bool {
-    if let Some(frontmatter) = parse_obsidian_frontmatter(&file) {
+    if let Some(frontmatter) = parse_obsidian_frontmatter(file) {
         frontmatter.publish.unwrap_or(false)
     } else {
         false

@@ -22,7 +22,7 @@ pub fn run(current_state: &mut State) -> Result<(), String> {
     }
 
     let targeted_files =
-        traverse_vault(&current_state, Path::new(&formatted_source), "").map_err(|e| {
+        traverse_vault(current_state, Path::new(&formatted_source), "").map_err(|e| {
             format!(
                 "Failed to traverse vault '{}' due to '{}'",
                 &formatted_source, e
@@ -65,7 +65,7 @@ pub fn traverse_vault(state: &State, start: &Path, relative_path: &str) -> io::R
                         .iter()
                         .any(|f| f == entry_str)
                 {
-                    let sub_dirs = traverse_vault(&state, &path, &new_rel_path)?;
+                    let sub_dirs = traverse_vault(state, &path, &new_rel_path)?;
                     tar_files.extend(sub_dirs);
                 }
             } else if path.is_file() && obsidian::check_file(&path) {
@@ -73,7 +73,7 @@ pub fn traverse_vault(state: &State, start: &Path, relative_path: &str) -> io::R
                 tar_files.push(new_rel_path);
             }
         }
-    } else if start.is_file() && obsidian::check_file(&start) {
+    } else if start.is_file() && obsidian::check_file(start) {
         tar_files.push(build_rel_path(start, relative_path));
     }
     Ok(tar_files)
@@ -83,15 +83,13 @@ pub fn traverse_vault(state: &State, start: &Path, relative_path: &str) -> io::R
 pub fn sync_files(files: &Vec<String>, src: &String, tgt: &String) -> bool {
     let mut success = true;
     for file in files {
-        let from = src.to_string() + "/" + &file;
-        let to = tgt.to_string() + "/" + &file;
+        let from = src.to_string() + "/" + file;
+        let to = tgt.to_string() + "/" + file;
         // Ensure the parent directory exists
-        if let Some(parent) = Path::new(&to).parent() {
-            if let Err(e) = fs::create_dir_all(parent) {
-                eprintln!("Error creating directory {}: {}", parent.display(), e);
-                success = false;
-                continue;
-            }
+        if let Some(parent) = Path::new(&to).parent() && let Err(e) = fs::create_dir_all(parent){
+            eprintln!("Error creating directory {}: {}", parent.display(), e);
+            success = false;
+            continue;
         }
 
         if let Err(e) = fs::copy(&from, to) {

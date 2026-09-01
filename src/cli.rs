@@ -70,7 +70,7 @@ impl Args {
                 State::update_config(state, "rmv", Some(kind), Some(values), None)
             }
             Some(Commands::Set { kind, path }) => {
-                State::update_config(state, "set", Some(kind), None, Some(&path))
+                State::update_config(state, "set", Some(kind), None, Some(path))
             }
             Some(Commands::Config) => {
                 state.config_to_string();
