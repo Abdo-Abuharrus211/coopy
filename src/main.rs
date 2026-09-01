@@ -51,9 +51,8 @@ fn main() -> Result<(), io::Error> {
                 exit(1);
             }
         }
-        Action::ConfigUpdate => {
-            // TODO: refactor/updt when implement proper config print
-            println!("Config updated successfully.");
+        Action::ShowConfig =>{
+            current_state.config_to_string();
         }
     }
 

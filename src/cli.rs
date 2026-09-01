@@ -6,7 +6,7 @@ use crate::config;
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Action {
     Sync,
-    ConfigUpdate,
+    ShowConfig,
 }
 
 #[derive(clap::ValueEnum, Debug, Clone)]
@@ -73,14 +73,13 @@ impl Args {
                 State::update_config(state, "set", Some(kind), None, Some(path))
             }
             Some(Commands::Config) => {
-                state.config_to_string();
-                Ok(())
+                return Ok(Action::ShowConfig)
             }
             None => return Ok(Action::Sync),
         };
         if let Err(e) = result {
             return Err(format!("Error processing command: {}", e));
         }
-        Ok(Action::ConfigUpdate)
+        Ok(Action::ShowConfig)
     }
 }
