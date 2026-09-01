@@ -48,25 +48,27 @@ pub enum Commands {
         values: Vec<String>,
     },
     /// Remove items from a config array
-    Rmv {
+    #[command(alias="rmv")]
+    Remove {
         kind: ConfigFields,
         values: Vec<String>,
     },
+    /// Set values in the config such as the "source" and "target" paths
     Set {
         kind: ConfigFields,
         path: String,
     },
-    /// Shows the current config
+    /// Display the current config
     Config,
 }
 
 #[derive(Parser, Debug)]
 #[command(author, about, long_about = None)]
 pub struct Args {
-    /// The first positional argument it the path of vault to copy from
+    /// First positional argument is the path of the Obsidian vault
     #[arg()]
     pub source: Option<String>,
-    /// Second positional argument, path to copy to
+    /// Second positional argument is the path to the target folder
     #[arg()]
     pub target: Option<String>,
     /// Potential subcommands
@@ -101,7 +103,7 @@ impl Args {
             Some(Commands::Add { kind, values }) => {
                 State::update_config(state, "add", Some(kind), Some(values), None)
             }
-            Some(Commands::Rmv { kind, values }) => {
+            Some(Commands::Remove { kind, values }) => {
                 State::update_config(state, "rmv", Some(kind), Some(values), None)
             }
             Some(Commands::Set { kind, path }) => {
