@@ -122,17 +122,14 @@ impl State {
         }
     }
 
-
     // TODO: Format and print the current saved Config
-    pub fn config_to_string(&mut self){
+    pub fn config_to_string(&self) {
         // format the entire configuration of the state into a multi-line string
         // tree like structure? recursive?
-        let current = &self.config;
-        println!("____COOPY CONFIGURATION____");
-        // for group in current {
-        //     println!("{group}");
-        // }
-
+        println!("//// COOPY CONFIGURATION ////");
+        let output = toml::to_string_pretty(&self.config)
+            .unwrap_or_else(|e| format!("Error printing configuration: {}", e));
+        println!("{}", output.trim_end());
     }
 }
 
@@ -140,7 +137,7 @@ impl State {
 fn add_values(list: &mut Vec<String>, values: Option<&[String]>) {
     if let Some(vals) = values {
         for val in vals {
-            if !list.contains(val){
+            if !list.contains(val) {
                 list.push(val.to_string());
             }
         }
