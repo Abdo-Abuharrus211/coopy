@@ -54,6 +54,9 @@ fn main() -> Result<(), io::Error> {
         Action::ShowConfig =>{
             current_state.config_to_string();
         }
+        Action::ConfigUpdate =>{
+            println!("Configuration successfully updated.");
+        }
     }
 
     Ok(())
