@@ -2,6 +2,7 @@
 name = "coopy"
 version = "0.1.0"
 edition = "2024"
+description = "A CLI tool to sync and manage content between Obsidian vaults and destination folders used for blogs, digital gardens, etc."
 
 [dependencies]
 serde = { version = "1.0.219", features = ["derive"] }
