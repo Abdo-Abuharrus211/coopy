@@ -17,7 +17,7 @@ pub fn run(current_state: &mut State) -> Result<(), String> {
     if !Path::new(&formatted_target).exists() {
         return Err(format!(
             "Target directory '{}' doesn't Exist!",
-            &formatted_target
+            formatted_target
         ));
     }
 
@@ -25,7 +25,7 @@ pub fn run(current_state: &mut State) -> Result<(), String> {
         traverse_vault(current_state, Path::new(&formatted_source), "").map_err(|e| {
             format!(
                 "Failed to traverse vault '{}' due to '{}'",
-                &formatted_source, e
+                formatted_source, e
             )
         })?;
     println!("Copying {} files...", targeted_files.len());
@@ -93,7 +93,7 @@ pub fn sync_files(files: &Vec<String>, src: &String, tgt: &String) -> bool {
         }
 
         if let Err(e) = fs::copy(&from, to) {
-            eprintln!("Error copying the file {}: {}", &from, e);
+            eprintln!("Error copying the file {}: {}", from, e);
             continue;
         };
     }
