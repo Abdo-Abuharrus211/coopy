@@ -11,10 +11,11 @@ I paired this with a Bash script to be able to run the entire process in a singl
 
 The next step is to convert it into a proper Obsidian Plugin!
 
-# Features (not fully implemented yet)
+# Features (not _all_ are fully implemented yet)
 - Seamless synchronization between source vault and target destination
 - Commands for modifying user configuration
 - Arguments hierarchy, command-line arguments take precedence over saved config
+- File Manifest System
 - Help docs
 
 # Instructions
@@ -29,8 +30,8 @@ For now, I compile and run using `cargo run` and have a `$PATH` environment vari
 - [X] Copy the files to the destination directory
 - [X] Only copy files in specific folders
 - [X] Complete config implementation
-- [ ] Add command line arguments and flags
-- [ ] Write the new paths to the config file if user flags to save
-- [ ] Add function docs? Is this idiomatic?
-- [ ] Write test suite
-- [ ] Refactor and modularize the functions
+- [X] Add CLI args
+- [X] Add function docs? Is this idiomatic?
+- [ ] Introduce options/flags to save paths
+- [ ] Implement test suite
+- [ ] Engineer file manifest system, to track file moves and avoid duplicates littering `target` folder
