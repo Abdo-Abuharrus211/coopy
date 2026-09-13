@@ -26,15 +26,46 @@ pub enum ConfigFields {
     Forbidden,
 }
 
+#[derive(clap::ValueEnum, Debug, Clone)]
+pub enum PathFields{
+    Source,
+    Target,
+}
+
+#[derive(clap::ValueEnum, Debug, Clone)]
+pub enum ArrayFields{
+    Folders,
+    Forbidden,
+}
+
+// Implementing `From` trait from specific field enums to ConfigFields - reduces need to refactor
+impl From<ArrayFields> for ConfigFields{
+    fn from(f: ArrayFields) -> Self{
+        match f {
+            ArrayFields::Folders=> return ConfigFields::Folders,
+            ArrayFields::Forbidden=> return ConfigFields::Forbidden,
+        }
+    }
+}
+
+impl From<PathFields> for ConfigFields{
+    fn from(p: PathFields) -> Self{
+        match p {
+            PathFields::Source=> return ConfigFields::Source,
+            PathFields::Target=> return ConfigFields::Target,
+        }
+    }
+}
+
 #[derive(Subcommand, Debug)]
 pub enum Commands {
     /// Sync contents from Obsidian vault to target folder
     Sync {
-        /// path to obsidian vault
+        /// path to Obsidian vault
         source: Option<String>,
-        /// path to destination
+        /// path to destination folder, where blog content lives
         target: Option<String>,
-        /// Show what would be copied without doing it
+        /// show what would be copied without doing it
         #[arg(long, action = clap::ArgAction::SetTrue)]
         dry_run: bool,
         /// Print verbose output
@@ -43,19 +74,24 @@ pub enum Commands {
     },
     /// Add items to a config array
     Add {
-        kind: ConfigFields,
-        /// Vector of strings
+        /// either 'Folders' or 'Forbidden' folders
+        kind: ArrayFields,
+        /// list of values to add (space separated)
         values: Vec<String>,
     },
     /// Remove items from a config array
     #[command(alias="rmv")]
     Remove {
-        kind: ConfigFields,
+        /// either 'Folders' or 'Forbidden' folders
+        kind: ArrayFields,
+        /// values to remove (space separated)
         values: Vec<String>,
     },
     /// Set values in the config such as the "source" and "target" paths
     Set {
-        kind: ConfigFields,
+        /// either 'Source' or 'Target' path
+        kind: PathFields,
+        /// path to specified folder
         path: String,
     },
     /// Display the current config
@@ -64,6 +100,7 @@ pub enum Commands {
 
 #[derive(Parser, Debug)]
 #[command(author, about, long_about = None)]
+#[command(disable_help_subcommand = true)]
 pub struct Args {
     /// First positional argument is the path of the Obsidian vault
     #[arg()]
@@ -101,13 +138,13 @@ impl Args {
                 });
             }
             Some(Commands::Add { kind, values }) => {
-                State::update_config(state, "add", Some(kind), Some(values), None)
+                State::update_config(state, "add", Some(kind.into()), Some(values), None)
             }
             Some(Commands::Remove { kind, values }) => {
-                State::update_config(state, "rmv", Some(kind), Some(values), None)
+                State::update_config(state, "rmv", Some(kind.into()), Some(values), None)
             }
             Some(Commands::Set { kind, path }) => {
-                State::update_config(state, "set", Some(kind), None, Some(path))
+                State::update_config(state, "set", Some(kind.into()), None, Some(path))
             }
             Some(Commands::Config) => {
                 return Ok(Processed {
