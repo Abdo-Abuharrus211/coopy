@@ -29,7 +29,7 @@ impl State {
     pub fn update_config(
         &mut self,
         operation: &str,
-        kind: Option<&ConfigFields>,
+        kind: Option<ConfigFields>,
         values: Option<&[String]>,
         path: Option<&str>,
     ) -> Result<(), String> {

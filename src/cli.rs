@@ -26,13 +26,13 @@ pub enum ConfigFields {
     Forbidden,
 }
 
-#[derive(clap::ValueEnum, Debug, Clone)]
+#[derive(clap::ValueEnum, Debug, Clone, Copy)]
 pub enum PathFields{
     Source,
     Target,
 }
 
-#[derive(clap::ValueEnum, Debug, Clone)]
+#[derive(clap::ValueEnum, Debug, Clone, Copy)]
 pub enum ArrayFields{
     Folders,
     Forbidden,
@@ -42,8 +42,8 @@ pub enum ArrayFields{
 impl From<ArrayFields> for ConfigFields{
     fn from(f: ArrayFields) -> Self{
         match f {
-            ArrayFields::Folders=> return ConfigFields::Folders,
-            ArrayFields::Forbidden=> return ConfigFields::Forbidden,
+            ArrayFields::Folders => ConfigFields::Folders,
+            ArrayFields::Forbidden => ConfigFields::Forbidden,
         }
     }
 }
@@ -51,8 +51,8 @@ impl From<ArrayFields> for ConfigFields{
 impl From<PathFields> for ConfigFields{
     fn from(p: PathFields) -> Self{
         match p {
-            PathFields::Source=> return ConfigFields::Source,
-            PathFields::Target=> return ConfigFields::Target,
+            PathFields::Source => ConfigFields::Source,
+            PathFields::Target => ConfigFields::Target,
         }
     }
 }
@@ -138,13 +138,13 @@ impl Args {
                 });
             }
             Some(Commands::Add { kind, values }) => {
-                State::update_config(state, "add", Some(kind.into()), Some(values), None)
+                State::update_config(state, "add", Some((*kind).into()), Some(values), None)
             }
             Some(Commands::Remove { kind, values }) => {
-                State::update_config(state, "rmv", Some(kind.into()), Some(values), None)
+                State::update_config(state, "rmv", Some((*kind).into()), Some(values), None)
             }
             Some(Commands::Set { kind, path }) => {
-                State::update_config(state, "set", Some(kind.into()), None, Some(path))
+                State::update_config(state, "set", Some((*kind).into()), None, Some(path))
             }
             Some(Commands::Config) => {
                 return Ok(Processed {
