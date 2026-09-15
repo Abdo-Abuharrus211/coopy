@@ -57,6 +57,8 @@ impl From<PathFields> for ConfigFields{
     }
 }
 
+
+// This enum represent the actual _commands_ (actions) the program can execute, each with own args and flags
 #[derive(Subcommand, Debug)]
 pub enum Commands {
     /// Sync contents from Obsidian vault to target folder
@@ -98,9 +100,11 @@ pub enum Commands {
     Config,
 }
 
+
+// Top level struct used by clap to process all arguments passed to the program, including commands and flags.
+// includes positional args for source & target to facil. `coopy /path/src /path/tar` use case
 #[derive(Parser, Debug)]
 #[command(author, about, long_about = None)]
-#[command(disable_help_subcommand = true)]
 pub struct Args {
     /// First positional argument is the path of the Obsidian vault
     #[arg()]
@@ -111,6 +115,11 @@ pub struct Args {
     /// Potential subcommands
     #[command(subcommand)]
     pub subcommand: Option<Commands>,
+
+    //Todo: manage when user passes a single path...yikes
+    /// Save paths to config
+    #[clap(action, short, long)]
+    pub save: bool,
 }
 
 impl Args {
