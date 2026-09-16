@@ -1,6 +1,6 @@
-use config::State;
-use clap::{Parser, Subcommand};
 use crate::config;
+use clap::{Parser, Subcommand};
+use config::State;
 
 /// Defines the possible actions Coopy can do.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -27,20 +27,20 @@ pub enum ConfigFields {
 }
 
 #[derive(clap::ValueEnum, Debug, Clone, Copy)]
-pub enum PathFields{
+pub enum PathFields {
     Source,
     Target,
 }
 
 #[derive(clap::ValueEnum, Debug, Clone, Copy)]
-pub enum ArrayFields{
+pub enum ArrayFields {
     Folders,
     Forbidden,
 }
 
 // Implementing `From` trait from specific field enums to ConfigFields - reduces need to refactor
-impl From<ArrayFields> for ConfigFields{
-    fn from(f: ArrayFields) -> Self{
+impl From<ArrayFields> for ConfigFields {
+    fn from(f: ArrayFields) -> Self {
         match f {
             ArrayFields::Folders => ConfigFields::Folders,
             ArrayFields::Forbidden => ConfigFields::Forbidden,
@@ -48,15 +48,14 @@ impl From<ArrayFields> for ConfigFields{
     }
 }
 
-impl From<PathFields> for ConfigFields{
-    fn from(p: PathFields) -> Self{
+impl From<PathFields> for ConfigFields {
+    fn from(p: PathFields) -> Self {
         match p {
             PathFields::Source => ConfigFields::Source,
             PathFields::Target => ConfigFields::Target,
         }
     }
 }
-
 
 // This enum represent the actual _commands_ (actions) the program can execute, each with own args and flags
 #[derive(Subcommand, Debug)]
@@ -82,7 +81,7 @@ pub enum Commands {
         values: Vec<String>,
     },
     /// Remove items from a config array
-    #[command(alias="rmv")]
+    #[command(alias = "rmv")]
     Remove {
         /// either 'Folders' or 'Forbidden' folders
         kind: ArrayFields,
@@ -99,7 +98,6 @@ pub enum Commands {
     /// Display the current config
     Config,
 }
-
 
 // Top level struct used by clap to process all arguments passed to the program, including commands and flags.
 // includes positional args for source & target to facil. `coopy /path/src /path/tar` use case
@@ -138,7 +136,7 @@ impl Args {
             });
         }
         // Processing commands here, including explicit sync command
-        let result = match &self.subcommand {
+        let cmd_result = match &self.subcommand {
             Some(Commands::Sync { source, target, .. }) => {
                 return Ok(Processed {
                     action: Action::Sync,
@@ -170,7 +168,17 @@ impl Args {
                 });
             }
         };
-        if let Err(e) = result {
+
+        // process flags here
+        match &self.save {
+            true => {
+                let p = &self.source.clone().unwrap();
+                let _ = State::update_config(state, "set", Some(ConfigFields::Source), None, Some(p));
+            }
+            false => println!(),
+        };
+
+        if let Err(e) = cmd_result {
             return Err(format!("Error processing command: {}", e));
         }
         Ok(Processed {
