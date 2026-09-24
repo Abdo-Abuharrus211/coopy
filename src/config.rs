@@ -111,8 +111,8 @@ impl State {
     pub fn resolve_paths(&mut self, input_src: Option<String>, input_tar: Option<String>) {
         let current = &mut self.config.user_settings;
         // resolve source
-        if let Some(s) = input_src {
-            current.source = s;
+        if let Some(ref s) = input_src {
+            current.source = s.to_string();
         } else if current.source.is_empty() {
             let mut new_src = String::new();
             print!("Obsidian vault's (source) path:");
@@ -125,7 +125,27 @@ impl State {
         // resolve target
         if let Some(t) = input_tar {
             current.target = t;
-        } else if current.target.is_empty() {
+        }
+        // confirmation to avoid destructive sync if the user mistakenly forgets about the target
+        else if input_tar.is_none() && input_src.is_some() && !current.target.is_empty() {
+            let mut proceed = String::new();
+            println!(
+                "Target path found in config: {}\nProceed with sync?\n\
+                Please enter 'Y'/'N' to confirm proceed or not. Default is 'Y'.",
+                current.target
+            );
+            io::stdin()
+                .read_line(&mut proceed)
+                .expect("Error parsing confirmation to proceed");
+            match proceed.trim().to_lowercase().as_str() {
+                "n" | "no" => {
+                    eprintln!("User abort sync. Exiting program.");
+                    exit(1);
+                }
+                "y" | "yes" => {}
+                _ => {}
+            };
+        } else {
             let mut new_tar = String::new();
             print!("Target path (content destination):");
             io::stdin()
@@ -162,4 +182,3 @@ fn remove_values(list: &mut Vec<String>, values: Option<&[String]>) {
         list.retain(|v| !vals.contains(v));
     }
 }
-
