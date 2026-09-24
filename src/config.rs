@@ -29,7 +29,7 @@ impl State {
     pub fn update_config(
         &mut self,
         operation: &str,
-        kind: Option<ConfigFields>,
+        field_type: Option<ConfigFields>,
         values: Option<&[String]>,
         path: Option<&str>,
     ) -> Result<(), String> {
@@ -48,7 +48,7 @@ impl State {
         });
 
         match operation {
-            "add" => match kind {
+            "add" => match field_type {
                 Some(ConfigFields::Folders) => {
                     add_values(&mut current_user_settings.folders, values);
                     config_file["user-settings"]["folders"] =
@@ -61,7 +61,7 @@ impl State {
                 }
                 _ => return Err(format!("Invalid config field '{}' operation", operation)),
             },
-            "rmv" => match kind {
+            "rmv" => match field_type {
                 Some(ConfigFields::Folders) => {
                     remove_values(&mut current_user_settings.folders, values);
                     config_file["user-settings"]["folders"] =
@@ -74,7 +74,7 @@ impl State {
                 }
                 _ => return Err(format!("Invalid config field '{}' operation", operation)),
             },
-            "set" => match kind {
+            "set" => match field_type {
                 Some(ConfigFields::Source) => {
                     if let Some(path) = path {
                         current_user_settings.source = path.to_string();
