@@ -110,15 +110,28 @@ impl State {
     /// If no paths are passed or stored, prompt user input if none exist in the config
     pub fn resolve_paths(&mut self, input_src: Option<String>, input_tar: Option<String>) {
         let current = &mut self.config.user_settings;
+        // resolve source
         if let Some(s) = input_src {
             current.source = s;
+        } else if current.source.is_empty() {
+            let mut new_src = String::new();
+            print!("Obsidian vault's (source) path:");
+            io::stdin()
+                .read_line(&mut new_src)
+                .expect("Error reading source path!");
+            current.source = new_src.trim().to_string();
         }
+
+        // resolve target
         if let Some(t) = input_tar {
             current.target = t;
-        }
-        // Prompt User for paths if they're not saved in the config file
-        else if current.source.is_empty() && current.target.is_empty() {
-            prompt_user_paths(self);
+        } else if current.target.is_empty() {
+            let mut new_tar = String::new();
+            print!("Target path (content destination):");
+            io::stdin()
+                .read_line(&mut new_tar)
+                .expect("Error reading target path!");
+            current.target = new_tar.trim().to_string();
         }
     }
 
@@ -150,20 +163,3 @@ fn remove_values(list: &mut Vec<String>, values: Option<&[String]>) {
     }
 }
 
-/// Ask the user to provide Obsidian vault and destination paths
-pub fn prompt_user_paths(state: &mut State) {
-    let mut src_input = String::new();
-    let mut target_input = String::new();
-
-    print!("Obsidian vault's (source) path:");
-    io::stdin()
-        .read_line(&mut src_input)
-        .expect("Error reading source path!");
-    print!("Target path: ");
-    io::stdin()
-        .read_line(&mut target_input)
-        .expect("Error reading target path!");
-
-    state.config.user_settings.source = src_input.trim().to_string();
-    state.config.user_settings.target = target_input.trim().to_string();
-}
