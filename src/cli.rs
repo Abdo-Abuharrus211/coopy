@@ -76,7 +76,7 @@ pub enum Commands {
     /// Add items to a config array
     Add {
         /// either 'Folders' or 'Forbidden' folders
-        kind: ArrayFields,
+        field_type: ArrayFields,
         /// list of values to add (space separated)
         values: Vec<String>,
     },
@@ -84,14 +84,14 @@ pub enum Commands {
     #[command(alias = "rmv")]
     Remove {
         /// either 'Folders' or 'Forbidden' folders
-        kind: ArrayFields,
+        field_type: ArrayFields,
         /// values to remove (space separated)
         values: Vec<String>,
     },
     /// Set values in the config such as the "source" and "target" paths
     Set {
         /// either 'Source' or 'Target' path
-        kind: PathFields,
+        field_type: PathFields,
         /// path to specified folder
         path: String,
     },
@@ -144,14 +144,14 @@ impl Args {
                     target: target.clone(),
                 });
             }
-            Some(Commands::Add { kind, values }) => {
-                State::update_config(state, "add", Some((*kind).into()), Some(values), None)
+            Some(Commands::Add { field_type: ft, values }) => {
+                State::update_config(state, "add", Some((*ft).into()), Some(values), None)
             }
-            Some(Commands::Remove { kind, values }) => {
-                State::update_config(state, "rmv", Some((*kind).into()), Some(values), None)
+            Some(Commands::Remove { field_type: ft, values }) => {
+                State::update_config(state, "rmv", Some((*ft).into()), Some(values), None)
             }
-            Some(Commands::Set { kind, path }) => {
-                State::update_config(state, "set", Some((*kind).into()), None, Some(path))
+            Some(Commands::Set { field_type: ft, path }) => {
+                State::update_config(state, "set", Some((*ft).into()), None, Some(path))
             }
             Some(Commands::Config) => {
                 return Ok(Processed {
