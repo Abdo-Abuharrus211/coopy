@@ -145,7 +145,7 @@ impl State {
                 "y" | "yes" => {}
                 _ => {}
             };
-        } else {
+        } else if current.target.is_empty() {
             let mut new_tar = String::new();
             print!("Target path (content destination):");
             io::stdin()
