@@ -12,12 +12,12 @@ Building a tool to sync my blog content with my Obsidian vault. Selectively choo
  - [X] Add command line arguments and flags
  - [X] Complete config implementation
  - [X] Update NOT Overwrite the `config.toml` file
- - [ ] Write the new paths to the config file if user flags to save
- - [ ] User message when config is updated - in `main.rs`
+ - [X] Write the new paths to the config file if user flags to save
+ - [X] User message when config is updated - in `main.rs`
  - [ ] Write tests suite
  - [ ] Looping and Error handling for the path selection process
  - [ ] Add function doc strings? Is this idiomatic?
- - [ ] Refactor and modularize the functions
+ - [X] Refactor and modularize the functions
 
 # Functionality
 
