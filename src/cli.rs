@@ -70,7 +70,7 @@ pub enum Commands {
         #[arg(long, action = clap::ArgAction::SetTrue)]
         dry_run: bool,
         /// Print verbose output
-        #[arg(long, short, action = clap::ArgAction::SetTrue)]
+        #[arg(long, action = clap::ArgAction::SetTrue)]
         verbose: bool,
     },
     /// Add items to a config array
